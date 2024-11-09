@@ -4,8 +4,14 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version number (e.g., 1.0.0 Note: without v)'
+        description: 'patch, minor or major'
         required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
 
 jobs:
   publish:
@@ -13,6 +19,9 @@ jobs:
     if: github.ref == 'refs/heads/development'
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          tags: true
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
