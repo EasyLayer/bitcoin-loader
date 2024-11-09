@@ -33,7 +33,10 @@ jobs:
 
       - name: Monorepo build
         uses: ./.github/actions/run-build
-      
+
+      - name: Install SQLite Dependencies
+        run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev
+
       # Recursively find and copy .env.example to .env for each test package
       - name: Set up .env files for each e2e test package
         run: |
