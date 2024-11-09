@@ -67,7 +67,7 @@ describe('/Bitcoin Loader: Synchronization of Read and Write Databases', () => {
       ];
 
       const query = `INSERT INTO events (aggregateId, extra, version, requestId, type, payload) VALUES (${eventValues.join(
-        ', ',
+        ', '
       )});`;
 
       await writeDbService.exec(query);
