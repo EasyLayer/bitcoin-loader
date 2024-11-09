@@ -1,0 +1,5 @@
+.eslintrc.js
+dist/
+.cache
+build
+**/node_modules/**

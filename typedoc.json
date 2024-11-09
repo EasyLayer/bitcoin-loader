@@ -1,0 +1,12 @@
+{
+    "$schema": "https://typedoc.org/schema.json",
+    "out": "./docs",
+    "entryPoints": [
+        "package/*",
+    ],
+    "exclude": [],
+    "name": "EasyLayer Bitcoin Loader Documentation",
+    // "entryPointStrategy": "packages",
+    "includeVersion": true,
+    "readme": "none"
+}

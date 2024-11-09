@@ -1,0 +1,72 @@
+{
+  "name": "@easylayer/bitcoin-loader",
+  "version": "1.0.0-beta",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    ".env.example"
+  ],
+  "bugs": {
+    "url": "https://github.com/easylayer/bitcoin-loader/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/easylayer/bitcoin-loader.git"
+  },
+  "scripts": {
+    "clear": "yarn run clear:dist && yarn run clear:node_modules",
+    "clear:node_modules": "rimraf node_modules",
+    "clear:dist": "rimraf dist",
+    "prepublishOnly": "yarn clear:dist && yarn build:prod",
+    "build:dev": "tsc -b ./tsconfig.json",
+    "build:prod": "tsc -b ./tsconfig.build.json",
+    "test:unit": "jest --maxWorkers=1 -c ./jest.config.unit.js",
+    "lint": "eslint -c .eslintrc.js \"{src,apps,libs,test}/**/*.ts\"",
+    "lint:fix": "eslint -c .eslintrc.js \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "format": "prettier -с .prettierrc.js --write \"src/**/*.ts\"",
+    "docs:generate:api-docs": "node dist/scripts/generate-api-docs.js",
+    "docs:generate:config-docs": "node dist/scripts/generate-config-docs.js"
+  },
+  "author": "Yaroslav Pavliuk",
+  "license": "",
+  "packageManager": "yarn@3.6.0",
+  "dependencies": {
+    "@easylayer/common": "0.1.1",
+    "@easylayer/components": "0.1.1",
+    "@nestjs-query/core": "0.30.0",
+    "@nestjs/common": "10.2.10",
+    "@nestjs/core": "10.2.10",
+    "@nestjs/platform-express": "10.2.10",
+    "@nestjs/swagger": "7.1.17",
+    "class-transformer": "0.5.1",
+    "class-transformer-validator": "0.9.1",
+    "class-validator": "0.14.0",
+    "class-validator-jsonschema": "5.0.0",
+    "commander": "11.1.0",
+    "dotenv": "16.4.5",
+    "fs-extra": "11.2.0",
+    "pg-copy-streams": "6.0.6",
+    "reflect-metadata": "0.1.14",
+    "rxjs": "7.8.1",
+    "uuid": "9.0.1"
+  },
+  "devDependencies": {
+    "@nestjs/testing": "10.2.10",
+    "@types/commander": "2.12.2",
+    "@types/fs-extra": "11.0.4",
+    "@types/jest": "29.5.11",
+    "@types/node": "20.10.4",
+    "@types/pg-copy-streams": "1.2.5",
+    "@types/uuid": "9.0.7",
+    "jest": "29.7.0",
+    "ts-jest": "29.1.1",
+    "ts-node": "10.9.2",
+    "typescript": "5.3.3"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}

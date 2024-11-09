@@ -1,0 +1,59 @@
+{
+  "name": "loader",
+  "version": "0.0.0",
+  "description": "",
+  "author": "Yaroslav Pavliuk",
+  "license": "",
+  "private": true,
+  "packageManager": "yarn@3.6.0",
+  "workspaces": {
+    "packages": [
+      "examples/*",
+      "package",
+      "e2e-tests"
+    ]
+  },
+  "scripts": {
+    "clear": "lerna run clear:dist && lerna run clear:node_modules && rimraf node_modules && yarn cache clean --all",
+    "clear:node_modules": "lerna run  clear:node_modules && rimraf node_modules",
+    "clear:dist": "lerna run clear:dist",
+    "build:dev": "tsc -b package/tsconfig.json",
+    "build:prod": "tsc -b package/tsconfig.build.json",
+    "start:example:bitcoin-loader-base": "cd ./examples/bitcoin-loader-base && yarn start",
+    "start:example:bitcoin-loader-with-relation": "cd ./examples/bitcoin-loader-with-relation && yarn start",
+    "start:example:bitcoin-loader-utxo": "cd ./examples/bitcoin-loader-utxo && yarn start",
+    "start:example:bitcoin-loader-scripts": "cd ./examples/bitcoin-loader-scripts && yarn start",
+    "docs:generate:api-docs": "lerna run docs:generate:api-docs",
+    "docs:generate:config-docs": "lerna run docs:generate:config-docs",
+    "docs:generate:developer-docs": "typedoc",
+    "test:unit": "lerna run test:unit --stream --",
+    "test:e2e": "lerna run test:e2e --stream",
+    "lint": "lerna run lint --stream",
+    "lint:fix": "lerna run lint:fix --stream",
+    "postinstall": "husky install",
+    "pre-commit": "lerna run lint",
+    "pre-push": "lerna run test:unit",
+    "commit": "cz"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "18.4.3",
+    "@commitlint/config-conventional": "18.4.3",
+    "@typescript-eslint/eslint-plugin": "6.13.2",
+    "@typescript-eslint/parser": "6.13.2",
+    "commitizen": "4.3.0",
+    "cz-conventional-changelog": "3.3.0",
+    "eslint": "8.55.0",
+    "eslint-config-prettier": "9.1.0",
+    "eslint-plugin-prettier": "5.0.1",
+    "husky": "8.0.3",
+    "lerna": "8.0.0",
+    "prettier": "3.1.1",
+    "rimraf": "5.0.5",
+    "typedoc": "0.25.6",
+    "typescript": "5.3.3"
+  },
+  "devEngines": {
+    "node": ">=18.0.0 <=20.x.x",
+    "npm": ">=8.0.0"
+  }
+}

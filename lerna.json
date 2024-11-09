@@ -1,0 +1,9 @@
+{
+  "packages": [
+    "examples/*",
+    "package",
+    "e2e-tests"
+  ],
+  "version": "1.0.0-beta",
+  "npmClient": "yarn"
+}
