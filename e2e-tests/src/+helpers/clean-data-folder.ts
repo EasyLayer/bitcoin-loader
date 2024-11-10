@@ -6,7 +6,8 @@ export const cleanDataFolder = async (path: string) => {
   const dataDir = resolve(process.cwd(), path);
   try {
     const files = await readdir(dataDir);
-    const unlinkPromises = files.map((file) => unlink(join(dataDir, file)));
+    const filesToDelete = files.filter((file: string) => file !== '.gitkeep');
+    const unlinkPromises = filesToDelete.map((file) => unlink(join(dataDir, file)));
     await Promise.all(unlinkPromises);
   } catch (err) {
     // If error just skip
