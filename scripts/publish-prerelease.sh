@@ -4,40 +4,50 @@
 set -e
 
 # Get environment variables
-baseVersion=$BASE_VERSION
-suffix=$SUFFIX
-increment=$INCREMENT
+SUFFIX=$SUFFIX
+RELEASE_TYPE=$RELEASE_TYPE
 
-# Check if increment is empty or not set
-if [ -z "$increment" ]; then
-  publishVersion="$baseVersion-$suffix"
-else
-  publishVersion="$baseVersion-$suffix.$increment"
+if [ -z "$SUFFIX" ]; then
+  echo "Error: SUFFIX is not set."
+  exit 1
 fi
 
-tagName="v$publishVersion"
+if [ -z "$RELEASE_TYPE" ]; then
+  echo "Error: RELEASE_TYPE is not set."
+  exit 1
+fi
 
 # Update package versions (e.g., 0.0.1-beta.0)
-echo "Setting package versions to: $publishVersion"
-./node_modules/.bin/lerna version $publishVersion --exact --yes --no-git-tag-version --no-push --force-publish=\*
+echo "Publishing packages with tag: $SUFFIX"
+./node_modules/.bin/lerna  version "$RELEASE_TYPE" --preid "$SUFFIX" --yes --no-push --no-git-tag-version --force-publish=\*
+
+# Get the version number from lerna.json
+version_num=$(jq -r '.version' lerna.json)
+echo "New Version: $version_num"
 
 # Add changes to Git
-echo "Committing version changes"
-git config user.name "github-actions"
-git config user.email "github-actions@github.com"
-git add **/package.json yarn.lock lerna.json
-git status
-git commit -m "Prerelease: $tagName"
+if [[ -n $(git status --porcelain) ]]; then
+  echo "Committing version changes"
+  git config user.name "github-actions"
+  git config user.email "github-actions@github.com"
+  git add $(find . -name 'package.json' -not -path '*/node_modules/*') yarn.lock lerna.json
+
+  if git diff-index --quiet HEAD --; then
+    echo "No changes to commit."
+  else
+    git commit -m "Prerelease: v$version_num"
+    # Push to the Git branch
+    echo "Pushing version changes to development branch"
+    git push origin HEAD
+  fi
+else
+  echo "No changes to commit."
+fi
 
 # Publish packages with the suffix as a tag
 echo "Publishing packages with tag: $suffix"
-./node_modules/.bin/lerna publish from-package --no-private --dist-tag $suffix --loglevel verbose --yes --no-git-tag-version --force-publish
-
-# Push to the Git branch
-echo "Pushing to head branch"
-git push origin HEAD
-
-# Create and push a Git tag
-git tag $tagName
-echo "Pushing tag $tagName"
-git push origin $tagName
+./node_modules/.bin/lerna publish from-package --no-private --dist-tag "$SUFFIX" --loglevel verbose --yes --no-git-tag-version --force-publish
+if [ $? -ne 0 ]; then
+    echo "Lerna publish failed!"
+    exit 1
+fi

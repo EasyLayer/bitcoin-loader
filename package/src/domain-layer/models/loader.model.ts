@@ -97,7 +97,17 @@ export class Loader extends AggregateRoot {
     );
   }
 
-  public async addBlocks({ blocks, requestId, service }: { blocks: any; requestId: string; service: any }) {
+  public async addBlocks({
+    blocks,
+    requestId,
+    service,
+    logger,
+  }: {
+    blocks: any;
+    requestId: string;
+    service: any;
+    logger: AppLogger;
+  }) {
     if (this.status !== LoaderStatuses.AWAITING) {
       throw new Error("addBlocks() Reorganisation hasn't finished yet");
     }
@@ -110,8 +120,11 @@ export class Loader extends AggregateRoot {
         requestId,
         service,
         blocks: [],
+        logger,
       });
     }
+
+    logger.info('Add blocks', { blocksLength: blocks.length }, this.constructor.name);
 
     return await this.apply(
       new BitcoinLoaderBlocksIndexedEvent({
@@ -183,11 +196,13 @@ export class Loader extends AggregateRoot {
     requestId,
     service,
     blocks,
+    logger,
   }: {
     height: number;
     requestId: string;
     service: NetworkProviderService;
     blocks: any[];
+    logger: AppLogger;
   }): Promise<void> {
     if (this.status !== LoaderStatuses.AWAITING) {
       throw new Error("reorganisation() Previous reorganisation hasn't finished yet");
@@ -196,8 +211,18 @@ export class Loader extends AggregateRoot {
     const localBlock = this.chain.findBlockByHeight(height)!;
     const oldBlock = await service.getOneBlockByHeight(height);
 
+    if (!localBlock) {
+      throw new Error("Can't fetch local block");
+    }
+
+    if (!oldBlock) {
+      throw new Error("Can't fetch old block");
+    }
+
     if (oldBlock.hash === localBlock.hash && oldBlock.previousblockhash === localBlock.previousblockhash) {
       // Match found
+
+      logger.info('Start reorganisation', { height }, this.constructor.name);
 
       return await this.apply(
         new BitcoinLoaderReorganisationStartedEvent({
@@ -217,7 +242,7 @@ export class Loader extends AggregateRoot {
     const prevHeight = height - 1;
 
     // Recursive check the previous block
-    return this.startReorganisation({ height: prevHeight, requestId, service, blocks: newBlocks });
+    return this.startReorganisation({ height: prevHeight, requestId, service, blocks: newBlocks, logger });
   }
 
   private onBitcoinLoaderInitializedEvent({ payload }: BitcoinLoaderInitializedEvent) {

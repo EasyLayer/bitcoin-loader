@@ -105,7 +105,7 @@ describe('/Bitcoin Loader: Reorganisation Flow', () => {
       // Exclude the last block because it was the one that triggered the reorganisation
       const reorganisationBlocks = mockFakeChainBlocks.slice(
         lastMatchingBlockHeight + 1,
-        mockFakeChainBlocks.length - 1,
+        mockFakeChainBlocks.length - 1
       );
 
       // The blocks array should contain the correct blocks for reorganisation

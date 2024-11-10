@@ -1,33 +1,37 @@
-name: 'Publish Prerelease'
+name: 'Create & Publish Prerelease'
 
 on:
   workflow_dispatch:
     inputs:
-      version:
-        description: 'Base version number (e.g., 1.0.0 Note: without v)'
-        required: true
       suffix:
         description: 'Version suffix for prerelease (e.g., alpha, beta)'
         required: true
-        default: 'experimental'
-      increment:
-        description: 'Prerelease increment (e.g., 0, 1, 2. Note: without v)'
-        required: false
+        default: 'beta'
+      release_type:
+        description: 'Release type to increment (premajor, preminor, prepatch)'
+        required: true
+        default: 'prepatch'
+        type: choice
+        options:
+          - premajor
+          - preminor
+          - prepatch
 
 jobs:
   publish:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/development'
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '18'
           registry-url: 'https://registry.npmjs.org'
-      - name: Monorepo install
-        uses: ./.github/actions/yarn-nm-install
-      - name: Check security dependencies
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+      - name: Check Security Dependencies
         uses: ./.github/actions/security/lockfile
         with:
           path: 'yarn.lock'
@@ -37,9 +41,8 @@ jobs:
       - name: Publish Prerelease Packages
         run: bash ./scripts/publish-prerelease.sh
         env:
-          BASE_VERSION: ${{ github.event.inputs.version }}
           SUFFIX: ${{ github.event.inputs.suffix }}
-          INCREMENT: ${{ github.event.inputs.increment }}
+          RELEASE_TYPE: ${{ github.event.inputs.release_type }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          HUSKY: '0' # By default do not run HUSKY install
+          HUSKY: '0'

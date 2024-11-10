@@ -27,6 +27,7 @@ export class LoadBatchCommandHandler implements ICommandHandler<LoadBatchCommand
         requestId,
         blocks: batch,
         service: this.networkProviderService,
+        logger: this.log,
       });
 
       await this.eventStore.save(loaderModel);
