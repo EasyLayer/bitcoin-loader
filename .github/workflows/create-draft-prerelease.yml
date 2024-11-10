@@ -1,4 +1,4 @@
-name: 'Create & Publish Prerelease'
+name: 'Create Draft Prerelease'
 
 on:
   workflow_dispatch:
@@ -29,8 +29,10 @@ jobs:
         with:
           node-version: '18'
           registry-url: 'https://registry.npmjs.org'
+
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
+
       - name: Check Security Dependencies
         uses: ./.github/actions/security/lockfile
         with:
@@ -38,7 +40,9 @@ jobs:
           type: 'yarn'
           allowedHosts: 'https://registry.npmjs.org'
           allowedURLs: ''
+
       - name: Publish Prerelease Packages
+        id: publish_prerelease
         run: bash ./scripts/publish-prerelease.sh
         env:
           SUFFIX: ${{ github.event.inputs.suffix }}
@@ -46,3 +50,23 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HUSKY: '0'
+
+      - name: Get Version Number
+        id: get_version
+        run: |
+          version=$(jq -r '.version' lerna.json)
+          echo "VERSION=$version" >> $GITHUB_ENV
+          echo "Version is $version"
+
+      - name: Create Draft Prerelease
+        uses: actions/create-release@v1
+        with:
+          tag_name: "v${{ env.VERSION }}"
+          release_name: "v${{ env.VERSION }} (Prerelease)"
+          draft: true
+          prerelease: true
+          body: |
+            This is an automated prerelease for version v${{ env.VERSION }}.
+            <!-- Add any additional information or release notes here -->
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
