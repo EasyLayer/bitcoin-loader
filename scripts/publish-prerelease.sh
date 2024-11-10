@@ -44,8 +44,8 @@ else
   echo "No changes to commit."
 fi
 
-# Publish packages with the suffix as a tag
-echo "Publishing packages with tag: $suffix"
+# Publish packages with the SUFFIX as a tag
+echo "Publishing packages with tag: $SUFFIX"
 ./node_modules/.bin/lerna publish from-package --no-private --dist-tag "$SUFFIX" --loglevel verbose --yes --no-git-tag-version --force-publish
 if [ $? -ne 0 ]; then
     echo "Lerna publish failed!"
