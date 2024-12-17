@@ -1,7 +1,7 @@
 import { resolve } from 'node:path';
 import { config } from 'dotenv';
 import { bootstrap } from '@easylayer/bitcoin-loader';
-import { BitcoinLoaderInitializedEvent } from '@easylayer/common/domain-cqrs-components/bitcoin-loader';
+import { BitcoinNetworkInitializedEvent } from '@easylayer/common/domain-cqrs-components/bitcoin';
 import { SQLiteService } from '../+helpers/sqlite/sqlite.service';
 import { cleanDataFolder } from '../+helpers/clean-data-folder';
 import { BlockSchema } from './blocks';
@@ -35,7 +35,7 @@ describe('/Bitcoin Loader: First Initializaton Flow', () => {
       testing: {
         sagaEventsToWait: [
           {
-            eventType: BitcoinLoaderInitializedEvent,
+            eventType: BitcoinNetworkInitializedEvent,
             count: 1,
           },
         ],
@@ -49,12 +49,12 @@ describe('/Bitcoin Loader: First Initializaton Flow', () => {
     await dbService.connect();
 
     // Check if the loader aggregate is created
-    const events = await dbService.all(`SELECT * FROM events WHERE aggregateId = 'loader'`);
+    const events = await dbService.all(`SELECT * FROM events WHERE aggregateId = 'network'`);
 
     expect(events.length).toBe(1);
-    expect(events[0].aggregateId).toBe('loader');
+    expect(events[0].aggregateId).toBe('network');
     expect(events[0].version).toBe(1);
-    expect(events[0].type).toBe('BitcoinLoaderInitializedEvent');
+    expect(events[0].type).toBe('BitcoinNetworkInitializedEvent');
 
     const payload = JSON.parse(events[0].payload);
     expect(payload.status).toBe('awaiting');

@@ -20,7 +20,7 @@ Bitcoin Loader is a server-side application designed to read data via RPC from a
 - **Configuration Management**: Managed and configured using environment variables.
 - **REST API Server**: Includes a ready-to-use REST API server for accessing loaded data.
 ------------
-- **Example applications** based on the loader are available in the `examples` folder at the root of the `el` repository.
+- **Example applications** based on the loader are available in the `examples` folder at the root of the `bitcoin-loader` repository.
 - Uses **Node.js** as the engine (version 18 or higher is important).
 
 ## Performance

@@ -656,8 +656,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@easylayer/bitcoin-loader@workspace:package"
   dependencies:
-    "@easylayer/common": 0.1.1
-    "@easylayer/components": 0.1.1
+    "@easylayer/common": 0.2.11
+    "@easylayer/components": 0.2.11
     "@nestjs-query/core": 0.30.0
     "@nestjs/common": 10.2.10
     "@nestjs/core": 10.2.10
@@ -704,6 +704,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@easylayer/common@npm:0.2.11":
+  version: 0.2.11
+  resolution: "@easylayer/common@npm:0.2.11"
+  dependencies:
+    "@nestjs/common": 10.2.10
+    "@nestjs/core": 10.2.10
+    bignumber.js: 9.1.2
+    bn.js: 5.2.1
+    bunyan: 1.8.15
+    chalk: 4.1.2
+    reflect-metadata: 0.1.14
+    rxjs: 7.8.1
+  checksum: ea3b5e57ad23ade10af9dcdf57fd67293cdfaf1d7343d6b100929f450cb9bf94e2fccd343924683d750693afc356c241265b867316c4acac3f07a83bf5cf1de0
+  languageName: node
+  linkType: hard
+
 "@easylayer/components@npm:0.1.1":
   version: 0.1.1
   resolution: "@easylayer/components@npm:0.1.1"
@@ -737,6 +753,44 @@ __metadata:
     typeorm-transactional: 0.5.0
     uuid: 9.0.1
   checksum: c353b251455aa4a4a9ff3b8986c7d2f839d0f1fef0c2a7e1d3f49cbd92a37b2f1e713e892a82c5e52e6733c54d34fd2a07f346d5d6a673df5050567b633b1d5c
+  languageName: node
+  linkType: hard
+
+"@easylayer/components@npm:0.2.11":
+  version: 0.2.11
+  resolution: "@easylayer/components@npm:0.2.11"
+  dependencies:
+    "@easylayer/common": 0.2.11
+    "@nestjs/common": 10.2.10
+    "@nestjs/core": 10.2.10
+    "@nestjs/cqrs": 10.2.6
+    "@nestjs/platform-socket.io": 10.2.10
+    "@nestjs/swagger": 7.1.17
+    "@nestjs/typeorm": 10.0.2
+    "@nestjs/websockets": 10.2.10
+    async-mutex: 0.5.0
+    better-sqlite3: 11.2.1
+    better-sqlite3-multiple-ciphers: 11.1.2
+    bip32: 4.0.0
+    bip39: 3.1.0
+    bitcoin-core: 4.1.0
+    bitcoinjs-lib: 6.1.6
+    ecpair: 2.1.0
+    lodash: 4.17.21
+    p-queue: 6.6.2
+    pg: 8.12.0
+    pg-error-enum: 0.7.1
+    piscina: 4.1.0
+    reflect-metadata: 0.1.14
+    rocksdb: 5.2.1
+    rxjs: 7.8.1
+    sqlite3: 5.1.7
+    stream-json: 1.8.0
+    tiny-secp256k1: 2.2.3
+    typeorm: 0.3.20
+    typeorm-transactional: 0.5.0
+    uuid: 9.0.1
+  checksum: 75b4120258af5fb60d4e23872a648d63113d067e464f4ede8b3b4d9b33377039d4f3d9fe13408e7b7a3a94b3f4968c9e66f42ae2d5ca28b39fac60dde8a23b12
   languageName: node
   linkType: hard
 
@@ -3019,6 +3073,28 @@ __metadata:
   languageName: node
   linkType: hard
 
+"better-sqlite3-multiple-ciphers@npm:11.1.2":
+  version: 11.1.2
+  resolution: "better-sqlite3-multiple-ciphers@npm:11.1.2"
+  dependencies:
+    bindings: ^1.5.0
+    node-gyp: latest
+    prebuild-install: ^7.1.1
+  checksum: 4a1a3d9f44c4926ede329a8176d60be49258ccba6f22caeca9ea62a7146b2f4ccbb79e6f8a90e7adfaaaaca45154d22a00c1151b14c39bb98f770ba2e3e98eef
+  languageName: node
+  linkType: hard
+
+"better-sqlite3@npm:11.2.1":
+  version: 11.2.1
+  resolution: "better-sqlite3@npm:11.2.1"
+  dependencies:
+    bindings: ^1.5.0
+    node-gyp: latest
+    prebuild-install: ^7.1.1
+  checksum: 22259c298e76d4bc2bd993dfc9392bb80ecef948f48342804a7bd38a43ff7693089a9ea0ac0c14ebc195453aa94fce588755f6eea234d7550383b9f6ac7150a9
+  languageName: node
+  linkType: hard
+
 "bignumber.js@npm:9.1.2, bignumber.js@npm:^9.0.0":
   version: 9.1.2
   resolution: "bignumber.js@npm:9.1.2"
@@ -3108,8 +3184,8 @@ __metadata:
   resolution: "bitcoin-loader-utxo@workspace:examples/bitcoin-loader-utxo"
   dependencies:
     "@easylayer/bitcoin-loader": ^1.0.0-beta.0
-    "@easylayer/common": 0.1.1
-    "@easylayer/components": 0.1.1
+    "@easylayer/common": 0.2.11
+    "@easylayer/components": 0.2.11
     "@types/node": 20.10.4
     rimraf: 5.0.5
     ts-node: 10.9.2
@@ -4630,8 +4706,8 @@ __metadata:
   resolution: "e2e-bitcoin-loader@workspace:e2e-tests"
   dependencies:
     "@easylayer/bitcoin-loader": ^1.0.0-beta.0
-    "@easylayer/common": 0.1.1
-    "@easylayer/components": 0.1.1
+    "@easylayer/common": 0.2.11
+    "@easylayer/components": 0.2.11
     "@types/jest": 29.5.11
     "@types/node": 20.10.4
     "@types/supertest": 6.0.2

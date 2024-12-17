@@ -1,4 +1,4 @@
-import { BitcoinLoaderBlocksIndexedEventHandler } from './blocks-indexed.event-handler';
-import { BitcoinLoaderReorganisationFinishedEventHandler } from './reorganisation-finished.event-handler';
+import { BitcoinNetworkBlocksAddedEventHandler } from './blocks-added.event-handler';
+import { BitcoinNetworkReorganisationFinishedEventHandler } from './reorganisation-finished.event-handler';
 
-export const EventsHandlers = [BitcoinLoaderBlocksIndexedEventHandler, BitcoinLoaderReorganisationFinishedEventHandler];
+export const EventsHandlers = [BitcoinNetworkBlocksAddedEventHandler, BitcoinNetworkReorganisationFinishedEventHandler];

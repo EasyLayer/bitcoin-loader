@@ -2,14 +2,14 @@ import { Inject } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@easylayer/components/cqrs';
 import { AppLogger, RuntimeTracker } from '@easylayer/components/logger';
 import { QueryFailedError } from '@easylayer/components/views-rdbms-db';
-import { BitcoinLoaderReorganisationFinishedEvent } from '@easylayer/common/domain-cqrs-components/bitcoin-loader';
+import { BitcoinNetworkReorganisationFinishedEvent } from '@easylayer/common/domain-cqrs-components/bitcoin';
 import { ViewsWriteRepositoryService } from '../../infrastructure-layer/services';
 import { ILoaderMapper } from '../../protocol';
 import { SystemsRepository } from '../../infrastructure-layer/view-models';
 
-@EventsHandler(BitcoinLoaderReorganisationFinishedEvent)
-export class BitcoinLoaderReorganisationFinishedEventHandler
-  implements IEventHandler<BitcoinLoaderReorganisationFinishedEvent>
+@EventsHandler(BitcoinNetworkReorganisationFinishedEvent)
+export class BitcoinNetworkReorganisationFinishedEventHandler
+  implements IEventHandler<BitcoinNetworkReorganisationFinishedEvent>
 {
   constructor(
     private readonly log: AppLogger,
@@ -18,9 +18,8 @@ export class BitcoinLoaderReorganisationFinishedEventHandler
     private readonly loaderMapper: ILoaderMapper
   ) {}
 
-  // @Transactional({ connectionName: 'loader-views' })
   @RuntimeTracker({ showMemory: false })
-  async handle({ payload }: BitcoinLoaderReorganisationFinishedEvent) {
+  async handle({ payload }: BitcoinNetworkReorganisationFinishedEvent) {
     try {
       const { blocks: lightBlocks } = payload;
 

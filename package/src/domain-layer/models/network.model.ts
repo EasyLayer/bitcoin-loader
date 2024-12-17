@@ -7,24 +7,24 @@ import {
   restoreChainLinks,
 } from '@easylayer/components/bitcoin-network-provider';
 import {
-  BitcoinLoaderInitializedEvent,
-  BitcoinLoaderBlocksIndexedEvent,
-  BitcoinLoaderReorganisationStartedEvent,
-  BitcoinLoaderReorganisationFinishedEvent,
-  BitcoinLoaderReorganisationProcessedEvent,
-} from '@easylayer/common/domain-cqrs-components/bitcoin-loader';
+  BitcoinNetworkInitializedEvent,
+  BitcoinNetworkBlocksAddedEvent,
+  BitcoinNetworkReorganisationStartedEvent,
+  BitcoinNetworkReorganisationFinishedEvent,
+  BitcoinNetworkReorganisationProcessedEvent,
+} from '@easylayer/common/domain-cqrs-components/bitcoin';
 
-enum LoaderStatuses {
+enum NetworkStatuses {
   AWAITING = 'awaiting',
   REORGANISATION = 'reorganisation',
 }
 
-export class Loader extends AggregateRoot {
+export class Network extends AggregateRoot {
   private __maxSize!: number;
-  // IMPORTANT: There must be only one Loader Aggregate in the module,
+  // IMPORTANT: There must be only one Network Aggregate in the module,
   // so we immediately give it aggregateId by which we can find it.
-  public aggregateId: string = 'loader';
-  public status: LoaderStatuses = LoaderStatuses.AWAITING;
+  public aggregateId: string = 'network';
+  public status: NetworkStatuses = NetworkStatuses.AWAITING;
   public chain: Blockchain;
 
   constructor({ maxSize }: { maxSize: number }) {
@@ -55,11 +55,11 @@ export class Loader extends AggregateRoot {
       restoreChainLinks(this.chain.head);
     }
 
-    Object.setPrototypeOf(this, Loader.prototype);
+    Object.setPrototypeOf(this, Network.prototype);
   }
 
   // IMPORTANT: this method doing two things:
-  // 1 - create Loader if it's first creation
+  // 1 - create Network if it's first creation
   // 2 - truncate chain if chain last height bigger then startHeight
   public async init({
     requestId,
@@ -70,9 +70,9 @@ export class Loader extends AggregateRoot {
     indexedHeight: number;
     logger: AppLogger;
   }) {
-    // IMPORTANT: We always initialize the Loader with the awaiting status,
+    // IMPORTANT: We always initialize the Network with the awaiting status,
     // if there was a reorganization status, then it will be processed at the next iteration.
-    const status = LoaderStatuses.AWAITING;
+    const status = NetworkStatuses.AWAITING;
 
     const height =
       this.chain.lastBlockHeight !== undefined
@@ -82,13 +82,13 @@ export class Loader extends AggregateRoot {
         : indexedHeight;
 
     logger.info(
-      'Init Loader Aggregate',
+      'Init Network Aggregate',
       { writeStateLastHeight: height, readStateLastHeight: indexedHeight },
       this.constructor.name
     );
 
     await this.apply(
-      new BitcoinLoaderInitializedEvent({
+      new BitcoinNetworkInitializedEvent({
         aggregateId: this.aggregateId,
         requestId,
         status,
@@ -108,7 +108,7 @@ export class Loader extends AggregateRoot {
     service: any;
     logger: AppLogger;
   }) {
-    if (this.status !== LoaderStatuses.AWAITING) {
+    if (this.status !== NetworkStatuses.AWAITING) {
       throw new Error("addBlocks() Reorganisation hasn't finished yet");
     }
 
@@ -127,10 +127,10 @@ export class Loader extends AggregateRoot {
     logger.info('Add blocks', { blocksLength: blocks.length }, this.constructor.name);
 
     return await this.apply(
-      new BitcoinLoaderBlocksIndexedEvent({
+      new BitcoinNetworkBlocksAddedEvent({
         aggregateId: this.aggregateId,
         requestId,
-        status: LoaderStatuses.AWAITING,
+        status: NetworkStatuses.AWAITING,
         blocks: blocks.map((block: any) => ({
           ...block,
           tx: block.tx.map((t: any) => t.txid),
@@ -150,14 +150,14 @@ export class Loader extends AggregateRoot {
     requestId: string;
     logger: AppLogger;
   }): Promise<void> {
-    if (this.status !== LoaderStatuses.REORGANISATION) {
+    if (this.status !== NetworkStatuses.REORGANISATION) {
       throw new Error("processReorganisation() Reorganisation hasn't started yet");
     }
 
     if (Number(height) > this.chain.lastBlockHeight!) {
       // IMPORTANT: In this case we just skip + we can log this error
       logger.warn(
-        "Reorganization height is higher than Loader's blockchain height",
+        "Reorganization height is higher than Network's blockchain height",
         { reorganisationHeight: height, lastBlockchainHeight: this.chain.lastBlockHeight },
         this.constructor.name
       );
@@ -169,7 +169,7 @@ export class Loader extends AggregateRoot {
     //   const blocksToProcessed = blocks;
 
     //   return await this.apply(
-    //     new BitcoinLoaderReorganisationProcessedEvent({
+    //     new BitcoinNetworkReorganisationProcessedEvent({
     //       aggregateId: this.aggregateId,
     //       requestId,
     //       // IMPORTANT: height - height of reorganization (last correct block)
@@ -180,10 +180,10 @@ export class Loader extends AggregateRoot {
     // }
 
     return await this.apply(
-      new BitcoinLoaderReorganisationFinishedEvent({
+      new BitcoinNetworkReorganisationFinishedEvent({
         aggregateId: this.aggregateId,
         requestId,
-        status: LoaderStatuses.AWAITING,
+        status: NetworkStatuses.AWAITING,
         // IMPORTANT: height - height of reorganization (last correct block)
         height: height.toString(),
         blocks,
@@ -204,7 +204,7 @@ export class Loader extends AggregateRoot {
     blocks: any[];
     logger: AppLogger;
   }): Promise<void> {
-    if (this.status !== LoaderStatuses.AWAITING) {
+    if (this.status !== NetworkStatuses.AWAITING) {
       throw new Error("reorganisation() Previous reorganisation hasn't finished yet");
     }
 
@@ -225,10 +225,10 @@ export class Loader extends AggregateRoot {
       logger.info('Start reorganisation', { height }, this.constructor.name);
 
       return await this.apply(
-        new BitcoinLoaderReorganisationStartedEvent({
+        new BitcoinNetworkReorganisationStartedEvent({
           aggregateId: this.aggregateId,
           requestId,
-          status: LoaderStatuses.REORGANISATION,
+          status: NetworkStatuses.REORGANISATION,
           // IMPORTANT: height - is height of reorganisation(the last height where the blocks matched)
           height: height.toString(),
           // IMPORTANT: blocks that need to be reorganized
@@ -245,20 +245,20 @@ export class Loader extends AggregateRoot {
     return this.startReorganisation({ height: prevHeight, requestId, service, blocks: newBlocks, logger });
   }
 
-  private onBitcoinLoaderInitializedEvent({ payload }: BitcoinLoaderInitializedEvent) {
+  private onBitcoinNetworkInitializedEvent({ payload }: BitcoinNetworkInitializedEvent) {
     const { aggregateId, status, indexedHeight } = payload;
     this.aggregateId = aggregateId;
-    this.status = status as LoaderStatuses;
+    this.status = status as NetworkStatuses;
 
     // IMPORTANT: In cases of blockchain synchronization with the read state,
     // we truncate the model to the precisely processed height.
     this.chain.truncateToBlock(Number(indexedHeight));
   }
 
-  private onBitcoinLoaderBlocksIndexedEvent({ payload }: BitcoinLoaderBlocksIndexedEvent) {
+  private onBitcoinNetworkBlocksAddedEvent({ payload }: BitcoinNetworkBlocksAddedEvent) {
     const { blocks, status } = payload;
 
-    this.status = status as LoaderStatuses;
+    this.status = status as NetworkStatuses;
     this.chain.addBlocks(
       blocks.map((block: any) => ({
         height: Number(block.height),
@@ -269,22 +269,22 @@ export class Loader extends AggregateRoot {
     );
   }
 
-  private onBitcoinLoaderReorganisationStartedEvent({ payload }: BitcoinLoaderReorganisationStartedEvent) {
+  private onBitcoinNetworkReorganisationStartedEvent({ payload }: BitcoinNetworkReorganisationStartedEvent) {
     const { status } = payload;
-    this.status = status as LoaderStatuses;
+    this.status = status as NetworkStatuses;
   }
 
   // Here we cut full at once in height
   // This method is idempotent
-  private onBitcoinLoaderReorganisationFinishedEvent({ payload }: BitcoinLoaderReorganisationFinishedEvent) {
+  private onBitcoinNetworkReorganisationFinishedEvent({ payload }: BitcoinNetworkReorganisationFinishedEvent) {
     const { height, status } = payload;
-    this.status = status as LoaderStatuses;
+    this.status = status as NetworkStatuses;
     this.chain.truncateToBlock(Number(height));
   }
 
   // Here we will only cut a few blocks
   // This method is idempotent
-  private onBitcoinLoaderReorganisationProcessedEvent({ payload }: BitcoinLoaderReorganisationProcessedEvent) {
+  private onBitcoinNetworkReorganisationProcessedEvent({ payload }: BitcoinNetworkReorganisationProcessedEvent) {
     const { blocks } = payload;
     this.chain.truncateToBlock(Number(blocks[0].height));
   }

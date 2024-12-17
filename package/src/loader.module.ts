@@ -17,7 +17,7 @@ import {
   ReadStateExceptionHandlerService,
   ViewsQueryFactoryService,
 } from './application-layer/services';
-import { LoaderModelFactoryService } from './domain-layer/services';
+import { NetworkModelFactoryService } from './domain-layer/services';
 import { ViewsReadRepositoryService, ViewsWriteRepositoryService } from './infrastructure-layer/services';
 import { CommandHandlers } from './domain-layer/command-handlers';
 import { EventsHandlers } from './domain-layer/events-handlers';
@@ -163,7 +163,7 @@ export class BitcoinLoaderModule {
         LoaderSaga,
         BlocksCommandFactoryService,
         LoaderCommandFactoryService,
-        LoaderModelFactoryService,
+        NetworkModelFactoryService,
         ReadStateExceptionHandlerService,
         ViewsQueryFactoryService,
         ...CommandHandlers,

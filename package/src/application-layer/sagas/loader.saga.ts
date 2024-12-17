@@ -4,10 +4,10 @@ import { Observable } from 'rxjs';
 import { Saga, ICommand, executeWithRetry } from '@easylayer/components/cqrs';
 import { BlocksQueueService } from '@easylayer/components/bitcoin-blocks-queue';
 import {
-  BitcoinLoaderInitializedEvent,
-  BitcoinLoaderReorganisationStartedEvent,
-  BitcoinLoaderReorganisationFinishedEvent,
-} from '@easylayer/common/domain-cqrs-components/bitcoin-loader';
+  BitcoinNetworkInitializedEvent,
+  BitcoinNetworkReorganisationStartedEvent,
+  BitcoinNetworkReorganisationFinishedEvent,
+} from '@easylayer/common/domain-cqrs-components/bitcoin';
 import { LoaderCommandFactoryService } from '../services';
 
 @Injectable()
@@ -18,21 +18,21 @@ export class LoaderSaga {
   ) {}
 
   @Saga()
-  onBitcoinLoaderInitializedEvent(events$: Observable<any>): Observable<ICommand> {
+  onBitcoinNetworkInitializedEvent(events$: Observable<any>): Observable<ICommand> {
     return events$.pipe(
       executeWithRetry({
-        event: BitcoinLoaderInitializedEvent,
-        command: ({ payload }: BitcoinLoaderInitializedEvent) => this.blocksQueueService.start(payload.indexedHeight),
+        event: BitcoinNetworkInitializedEvent,
+        command: ({ payload }: BitcoinNetworkInitializedEvent) => this.blocksQueueService.start(payload.indexedHeight),
       })
     );
   }
 
   @Saga()
-  onBitcoinLoaderReorganisationStartedEvent(events$: Observable<any>): Observable<ICommand> {
+  onBitcoinNetworkReorganisationStartedEvent(events$: Observable<any>): Observable<ICommand> {
     return events$.pipe(
       executeWithRetry({
-        event: BitcoinLoaderReorganisationStartedEvent,
-        command: ({ payload }: BitcoinLoaderReorganisationStartedEvent) =>
+        event: BitcoinNetworkReorganisationStartedEvent,
+        command: ({ payload }: BitcoinNetworkReorganisationStartedEvent) =>
           this.loaderCommandFactory.processReorganisation({
             blocks: payload.blocks,
             height: payload.height,
@@ -62,11 +62,11 @@ export class LoaderSaga {
   // }
 
   @Saga()
-  onBitcoinLoaderReorganisationFinishedEvent(events$: Observable<any>): Observable<ICommand> {
+  onBitcoinNetworkReorganisationFinishedEvent(events$: Observable<any>): Observable<ICommand> {
     return events$.pipe(
       executeWithRetry({
-        event: BitcoinLoaderReorganisationFinishedEvent,
-        command: ({ payload }: BitcoinLoaderReorganisationFinishedEvent) =>
+        event: BitcoinNetworkReorganisationFinishedEvent,
+        command: ({ payload }: BitcoinNetworkReorganisationFinishedEvent) =>
           this.blocksQueueService.reorganizeBlocks(payload.height),
       })
     );

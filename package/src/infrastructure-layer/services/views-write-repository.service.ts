@@ -213,7 +213,7 @@ export class ViewsWriteRepositoryService implements OnModuleDestroy {
   }
 
   private async insertWithCopy(queryRunner: QueryRunner, entityName: string, values: any[]): Promise<void> {
-    const repo = this.getRepository(entityName);
+    const repo = queryRunner.manager.getRepository(entityName);
     const entityMetadata = repo.metadata;
     const tableName = `"${entityMetadata.tableName}"`;
     const columns = entityMetadata.columns.map((col) => `"${col.databaseName}"`).join(', ');

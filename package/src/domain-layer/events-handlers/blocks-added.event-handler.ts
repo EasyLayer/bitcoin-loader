@@ -3,13 +3,13 @@ import { EventsHandler, IEventHandler } from '@easylayer/components/cqrs';
 import { AppLogger, RuntimeTracker } from '@easylayer/components/logger';
 import { BlocksQueueService } from '@easylayer/components/bitcoin-blocks-queue';
 import { QueryFailedError } from '@easylayer/components/views-rdbms-db';
-import { BitcoinLoaderBlocksIndexedEvent } from '@easylayer/common/domain-cqrs-components/bitcoin-loader';
+import { BitcoinNetworkBlocksAddedEvent } from '@easylayer/common/domain-cqrs-components/bitcoin';
 import { ViewsWriteRepositoryService } from '../../infrastructure-layer/services';
 import { ILoaderMapper } from '../../protocol';
 import { SystemsRepository } from '../../infrastructure-layer/view-models';
 
-@EventsHandler(BitcoinLoaderBlocksIndexedEvent)
-export class BitcoinLoaderBlocksIndexedEventHandler implements IEventHandler<BitcoinLoaderBlocksIndexedEvent> {
+@EventsHandler(BitcoinNetworkBlocksAddedEvent)
+export class BitcoinNetworkBlocksAddedEventHandler implements IEventHandler<BitcoinNetworkBlocksAddedEvent> {
   constructor(
     private readonly log: AppLogger,
     private readonly viewsWriteRepository: ViewsWriteRepositoryService,
@@ -20,7 +20,7 @@ export class BitcoinLoaderBlocksIndexedEventHandler implements IEventHandler<Bit
   ) {}
 
   @RuntimeTracker({ showMemory: false, warningThresholdMs: 10, errorThresholdMs: 1000 })
-  async handle({ payload }: BitcoinLoaderBlocksIndexedEvent) {
+  async handle({ payload }: BitcoinNetworkBlocksAddedEvent) {
     try {
       // console.timeEnd('CqrsTransportTime');
       const { blocks } = payload;

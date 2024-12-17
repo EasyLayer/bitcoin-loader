@@ -22,6 +22,8 @@ export class LoaderService implements OnModuleInit {
     try {
       const indexedHeight = await this.viewsReadRepository.getLastBlock();
 
+      this.log.debug('Last block height value at read database', { height: indexedHeight }, this.constructor.name);
+
       await this.loaderCommandFactory.init({
         requestId: uuidv4(),
         indexedHeight,

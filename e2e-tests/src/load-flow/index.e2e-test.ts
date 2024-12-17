@@ -2,9 +2,9 @@ import { resolve } from 'node:path';
 import { config } from 'dotenv';
 import { bootstrap } from '@easylayer/bitcoin-loader';
 import {
-  BitcoinLoaderBlocksIndexedEvent,
-  BitcoinLoaderInitializedEvent,
-} from '@easylayer/common/domain-cqrs-components/bitcoin-loader';
+  BitcoinNetworkBlocksAddedEvent,
+  BitcoinNetworkInitializedEvent,
+} from '@easylayer/common/domain-cqrs-components/bitcoin';
 import { NetworkProviderService } from '@easylayer/components/bitcoin-network-provider';
 import { SQLiteService } from '../+helpers/sqlite/sqlite.service';
 import { cleanDataFolder } from '../+helpers/clean-data-folder';
@@ -58,7 +58,7 @@ describe('/Bitcoin Loader: Load Flow', () => {
       testing: {
         handlerEventsToWait: [
           {
-            eventType: BitcoinLoaderBlocksIndexedEvent,
+            eventType: BitcoinNetworkBlocksAddedEvent,
             count: 1,
           },
         ],
@@ -75,28 +75,28 @@ describe('/Bitcoin Loader: Load Flow', () => {
     const events = await dbService.all(`SELECT * FROM events`);
 
     // Check that the loader initialization event is saved correctly
-    const initEvent = events.find((event) => event.type === BitcoinLoaderInitializedEvent.name);
+    const initEvent = events.find((event) => event.type === BitcoinNetworkInitializedEvent.name);
 
     // Ensure the initialization event exists
     expect(initEvent).toBeDefined();
 
-    // Verify the aggregateId is always 'loader'
-    expect(initEvent.aggregateId).toBe('loader');
+    // Verify the aggregateId is always 'network'
+    expect(initEvent.aggregateId).toBe('network');
 
     const initPayload = JSON.parse(initEvent.payload);
 
     // Verify the status in the payload is 'awaiting'
     expect(initPayload.status).toBe('awaiting');
 
-    // Check the block indexing events (BitcoinLoaderBlocksIndexedEvent)
-    const blockEvents = events.filter((event) => event.type === BitcoinLoaderBlocksIndexedEvent.name);
+    // Check the block indexing events (BitcoinNetworkBlocksAddedEvent)
+    const blockEvents = events.filter((event) => event.type === BitcoinNetworkBlocksAddedEvent.name);
 
     // Ensure there are block indexing events
     expect(blockEvents.length).toBeGreaterThan(0);
 
     blockEvents.forEach((event) => {
-      // Verify the aggregateId matches the expected value ('loader')
-      expect(event.aggregateId).toBe('loader');
+      // Verify the aggregateId matches the expected value ('network')
+      expect(event.aggregateId).toBe('network');
 
       const blockPayload = JSON.parse(event.payload);
 

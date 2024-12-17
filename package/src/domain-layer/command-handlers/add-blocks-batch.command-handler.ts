@@ -1,44 +1,44 @@
 import { CommandHandler, ICommandHandler } from '@easylayer/components/cqrs';
 import { Transactional, EventStoreRepository } from '@easylayer/components/eventstore';
-import { LoadBatchCommand } from '@easylayer/common/domain-cqrs-components/bitcoin-loader';
+import { AddBlocksBatchCommand } from '@easylayer/common/domain-cqrs-components/bitcoin';
 import { AppLogger, RuntimeTracker } from '@easylayer/components/logger';
 import { NetworkProviderService } from '@easylayer/components/bitcoin-network-provider';
-import { Loader } from '../models/loader.model';
-import { LoaderModelFactoryService } from '../services';
+import { Network } from '../models/network.model';
+import { NetworkModelFactoryService } from '../services';
 
-@CommandHandler(LoadBatchCommand)
-export class LoadBatchCommandHandler implements ICommandHandler<LoadBatchCommand> {
+@CommandHandler(AddBlocksBatchCommand)
+export class AddBlocksBatchCommandHandler implements ICommandHandler<AddBlocksBatchCommand> {
   constructor(
     private readonly log: AppLogger,
-    private readonly loaderModelFactory: LoaderModelFactoryService,
+    private readonly networkModelFactory: NetworkModelFactoryService,
     private readonly networkProviderService: NetworkProviderService,
     private readonly eventStore: EventStoreRepository
   ) {}
 
   @Transactional({ connectionName: 'loader-eventstore' })
   @RuntimeTracker({ showMemory: false, warningThresholdMs: 10, errorThresholdMs: 1000 })
-  async execute({ payload }: LoadBatchCommand) {
+  async execute({ payload }: AddBlocksBatchCommand) {
     try {
       const { batch, requestId } = payload;
 
-      const loaderModel: Loader = await this.loaderModelFactory.initModel();
+      const networkModel: Network = await this.networkModelFactory.initModel();
 
-      await loaderModel.addBlocks({
+      await networkModel.addBlocks({
         requestId,
         blocks: batch,
         service: this.networkProviderService,
         logger: this.log,
       });
 
-      await this.eventStore.save(loaderModel);
+      await this.eventStore.save(networkModel);
 
-      this.loaderModelFactory.updateCache(loaderModel);
+      this.networkModelFactory.updateCache(networkModel);
 
-      await loaderModel.commit();
+      await networkModel.commit();
       // console.time('CqrsTransportTime');
     } catch (error) {
       this.log.error('execute()', error, this.constructor.name);
-      this.loaderModelFactory.clearCache();
+      this.networkModelFactory.clearCache();
       throw error;
     }
   }

@@ -1,7 +1,7 @@
 import { resolve } from 'node:path';
 import { config } from 'dotenv';
 import { bootstrap } from '@easylayer/bitcoin-loader';
-import { BitcoinLoaderInitializedEvent } from '@easylayer/common/domain-cqrs-components/bitcoin-loader';
+import { BitcoinNetworkInitializedEvent } from '@easylayer/common/domain-cqrs-components/bitcoin';
 import { NetworkProviderService } from '@easylayer/components/bitcoin-network-provider';
 import { SQLiteService } from '../+helpers/sqlite/sqlite.service';
 import { cleanDataFolder } from '../+helpers/clean-data-folder';
@@ -114,7 +114,7 @@ describe('/Bitcoin Loader: Synchronization of Read and Write Databases', () => {
       testing: {
         sagaEventsToWait: [
           {
-            eventType: BitcoinLoaderInitializedEvent,
+            eventType: BitcoinNetworkInitializedEvent,
             count: 1,
           },
         ],
@@ -129,13 +129,13 @@ describe('/Bitcoin Loader: Synchronization of Read and Write Databases', () => {
 
     // Retrieve all events from the write database
     const events = await writeDbService.all(`SELECT * FROM events`);
-    // Filter events to find all BitcoinLoaderInitializedEvent
-    const initEvents = events.filter((event: any) => event.type === BitcoinLoaderInitializedEvent.name);
+    // Filter events to find all BitcoinNetworkInitializedEvent
+    const initEvents = events.filter((event: any) => event.type === BitcoinNetworkInitializedEvent.name);
 
-    // Ensure that at least one BitcoinLoaderInitializedEvent exists
+    // Ensure that at least one BitcoinNetworkInitializedEvent exists
     expect(initEvents.length).toBeGreaterThan(0);
 
-    // Retrieve the last BitcoinLoaderInitializedEvent
+    // Retrieve the last BitcoinNetworkInitializedEvent
     const lastInitEvent = initEvents[initEvents.length - 1];
 
     // Parse the payload of the initialization event to extract the last indexed height

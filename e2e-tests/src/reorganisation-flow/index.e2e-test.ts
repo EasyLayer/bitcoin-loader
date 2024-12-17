@@ -1,7 +1,7 @@
 import { resolve } from 'node:path';
 import { config } from 'dotenv';
 import { bootstrap } from '@easylayer/bitcoin-loader';
-import { BitcoinLoaderReorganisationFinishedEvent } from '@easylayer/common/domain-cqrs-components/bitcoin-loader';
+import { BitcoinNetworkReorganisationFinishedEvent } from '@easylayer/common/domain-cqrs-components/bitcoin';
 import { NetworkProviderService } from '@easylayer/components/bitcoin-network-provider';
 import { SQLiteService } from '../+helpers/sqlite/sqlite.service';
 import { cleanDataFolder } from '../+helpers/clean-data-folder';
@@ -59,13 +59,13 @@ describe('/Bitcoin Loader: Reorganisation Flow', () => {
       testing: {
         handlerEventsToWait: [
           {
-            eventType: BitcoinLoaderReorganisationFinishedEvent,
+            eventType: BitcoinNetworkReorganisationFinishedEvent,
             count: 1,
           },
         ],
         sagaEventsToWait: [
           {
-            eventType: BitcoinLoaderReorganisationFinishedEvent,
+            eventType: BitcoinNetworkReorganisationFinishedEvent,
             count: 1,
           },
         ],
@@ -81,8 +81,8 @@ describe('/Bitcoin Loader: Reorganisation Flow', () => {
     // Retrieve all events from the database
     const events = await dbService.all(`SELECT * FROM events`);
 
-    // Filter events for BitcoinLoaderReorganisationFinishedEvent type
-    const reorgEvents = events.filter((event) => event.type === BitcoinLoaderReorganisationFinishedEvent.name);
+    // Filter events for BitcoinNetworkReorganisationFinishedEvent type
+    const reorgEvents = events.filter((event) => event.type === BitcoinNetworkReorganisationFinishedEvent.name);
 
     // Ensure we have at least one event
     expect(reorgEvents.length).toBeGreaterThan(0);

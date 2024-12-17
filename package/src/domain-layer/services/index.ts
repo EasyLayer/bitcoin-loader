@@ -1,1 +1,1 @@
-export * from './loader-model-factory.service';
+export * from './network-model-factory.service';
