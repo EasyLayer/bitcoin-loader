@@ -1,7 +1,7 @@
 {
   "name": "bitcoin-loader-scripts",
   "private": true,
-  "version": "1.0.0-beta.0",
+  "version": "1.0.1-beta.0",
   "description": "This is an example app for development",
   "scripts": {
     "clear": "yarn clear cache && clear:node_modules",
@@ -9,7 +9,7 @@
     "start": "node --inspect -r ts-node/register src/main.ts"
   },
   "dependencies": {
-    "@easylayer/bitcoin-loader": "^1.0.0-beta.0",
+    "@easylayer/bitcoin-loader": "^1.0.1-beta.0",
     "@easylayer/components": "0.1.1"
   },
   "devDependencies": {
