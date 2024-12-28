@@ -4,7 +4,7 @@ import { CommandBus } from '@easylayer/components/cqrs';
 import { InitNetworkCommand, ProcessReorganisationCommand } from '@easylayer/common/domain-cqrs-components/bitcoin';
 
 @Injectable()
-export class LoaderCommandFactoryService {
+export class NetworkCommandFactoryService {
   constructor(private readonly commandBus: CommandBus) {}
 
   public async init(dto: any): Promise<void> {

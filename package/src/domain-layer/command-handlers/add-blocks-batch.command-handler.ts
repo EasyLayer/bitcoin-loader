@@ -3,7 +3,7 @@ import { Transactional, EventStoreRepository } from '@easylayer/components/event
 import { AddBlocksBatchCommand } from '@easylayer/common/domain-cqrs-components/bitcoin';
 import { AppLogger, RuntimeTracker } from '@easylayer/components/logger';
 import { NetworkProviderService } from '@easylayer/components/bitcoin-network-provider';
-import { Network } from '../models/network.model';
+import { Network } from '@easylayer/components/bitcoin-network-state';
 import { NetworkModelFactoryService } from '../services';
 
 @CommandHandler(AddBlocksBatchCommand)

@@ -656,8 +656,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@easylayer/bitcoin-loader@workspace:package"
   dependencies:
-    "@easylayer/common": 0.2.11
-    "@easylayer/components": 0.2.11
+    "@easylayer/common": 0.3.7
+    "@easylayer/components": 0.3.7
     "@nestjs-query/core": 0.30.0
     "@nestjs/common": 10.2.10
     "@nestjs/core": 10.2.10
@@ -704,9 +704,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@easylayer/common@npm:0.2.11":
-  version: 0.2.11
-  resolution: "@easylayer/common@npm:0.2.11"
+"@easylayer/common@npm:0.3.7":
+  version: 0.3.7
+  resolution: "@easylayer/common@npm:0.3.7"
   dependencies:
     "@nestjs/common": 10.2.10
     "@nestjs/core": 10.2.10
@@ -716,7 +716,7 @@ __metadata:
     chalk: 4.1.2
     reflect-metadata: 0.1.14
     rxjs: 7.8.1
-  checksum: ea3b5e57ad23ade10af9dcdf57fd67293cdfaf1d7343d6b100929f450cb9bf94e2fccd343924683d750693afc356c241265b867316c4acac3f07a83bf5cf1de0
+  checksum: 688a51ce35a5f0cca4ba4df988dd5b1565ff45443e56734e970a34c64b76b0246dc5df46fabcb4bbbf0593a0dd3b9336f460be17119453a1d13a23c02f3773b3
   languageName: node
   linkType: hard
 
@@ -756,11 +756,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@easylayer/components@npm:0.2.11":
-  version: 0.2.11
-  resolution: "@easylayer/components@npm:0.2.11"
+"@easylayer/components@npm:0.3.7":
+  version: 0.3.7
+  resolution: "@easylayer/components@npm:0.3.7"
   dependencies:
-    "@easylayer/common": 0.2.11
+    "@easylayer/common": 0.3.7
     "@nestjs/common": 10.2.10
     "@nestjs/core": 10.2.10
     "@nestjs/cqrs": 10.2.6
@@ -790,7 +790,7 @@ __metadata:
     typeorm: 0.3.20
     typeorm-transactional: 0.5.0
     uuid: 9.0.1
-  checksum: 75b4120258af5fb60d4e23872a648d63113d067e464f4ede8b3b4d9b33377039d4f3d9fe13408e7b7a3a94b3f4968c9e66f42ae2d5ca28b39fac60dde8a23b12
+  checksum: d6b3232cb158ba7dfcb0d59b022329b55378d66cccc6dbb50786ddb790775d55dd02917d3b5ee5010901a123f6db59859d020fd939251ff0bd75c3ddbfe162c0
   languageName: node
   linkType: hard
 
@@ -3184,8 +3184,8 @@ __metadata:
   resolution: "bitcoin-loader-utxo@workspace:examples/bitcoin-loader-utxo"
   dependencies:
     "@easylayer/bitcoin-loader": ^1.0.1-beta.0
-    "@easylayer/common": 0.2.11
-    "@easylayer/components": 0.2.11
+    "@easylayer/common": 0.3.7
+    "@easylayer/components": 0.3.7
     "@types/node": 20.10.4
     rimraf: 5.0.5
     ts-node: 10.9.2
@@ -4706,8 +4706,8 @@ __metadata:
   resolution: "e2e-bitcoin-loader@workspace:e2e-tests"
   dependencies:
     "@easylayer/bitcoin-loader": ^1.0.1-beta.0
-    "@easylayer/common": 0.2.11
-    "@easylayer/components": 0.2.11
+    "@easylayer/common": 0.3.7
+    "@easylayer/components": 0.3.7
     "@types/jest": 29.5.11
     "@types/node": 20.10.4
     "@types/supertest": 6.0.2

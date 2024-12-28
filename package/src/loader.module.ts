@@ -10,14 +10,15 @@ import { ReadDatabaseModule } from '@easylayer/components/views-rdbms-db';
 import { NetworkProviderModule } from '@easylayer/components/bitcoin-network-provider';
 import { LoaderController } from './loader.controller';
 import { LoaderService } from './loader.service';
-import { LoaderSaga } from './application-layer/sagas';
+import { NetworkSaga, SchemaSaga } from './application-layer/sagas';
 import {
   BlocksCommandFactoryService,
-  LoaderCommandFactoryService,
+  NetworkCommandFactoryService,
+  SchemaCommandFactoryService,
   ReadStateExceptionHandlerService,
   ViewsQueryFactoryService,
 } from './application-layer/services';
-import { NetworkModelFactoryService } from './domain-layer/services';
+import { NetworkModelFactoryService, SchemaModelFactoryService } from './domain-layer/services';
 import { ViewsReadRepositoryService, ViewsWriteRepositoryService } from './infrastructure-layer/services';
 import { CommandHandlers } from './domain-layer/command-handlers';
 import { EventsHandlers } from './domain-layer/events-handlers';
@@ -113,9 +114,6 @@ export class BitcoinLoaderModule {
           ...(readdatabaseConfig.BITCOIN_LOADER_READ_DB_PASSWORD && {
             password: readdatabaseConfig.BITCOIN_LOADER_READ_DB_PASSWORD,
           }),
-          ...(readdatabaseConfig.isUnlogged() && {
-            unlogged: readdatabaseConfig.isUnlogged(),
-          }),
         }),
         BlocksQueueModule.forRootAsync({
           isTransportMode: false,
@@ -160,10 +158,13 @@ export class BitcoinLoaderModule {
         ViewsWriteRepositoryService,
         ArithmeticService,
         LoaderService,
-        LoaderSaga,
+        NetworkSaga,
+        SchemaSaga,
         BlocksCommandFactoryService,
-        LoaderCommandFactoryService,
+        NetworkCommandFactoryService,
+        SchemaCommandFactoryService,
         NetworkModelFactoryService,
+        SchemaModelFactoryService,
         ReadStateExceptionHandlerService,
         ViewsQueryFactoryService,
         ...CommandHandlers,

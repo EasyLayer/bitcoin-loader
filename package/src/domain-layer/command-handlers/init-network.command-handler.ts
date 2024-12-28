@@ -1,8 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@easylayer/components/cqrs';
 import { Transactional, EventStoreRepository } from '@easylayer/components/eventstore';
 import { InitNetworkCommand } from '@easylayer/common/domain-cqrs-components/bitcoin';
-import { AppLogger, RuntimeTracker } from '@easylayer/components/logger';
-import { Network } from '../models/network.model';
+import { AppLogger } from '@easylayer/components/logger';
+import { Network } from '@easylayer/components/bitcoin-network-state';
+import { ViewsReadRepositoryService } from '../../infrastructure-layer/services';
 import { NetworkModelFactoryService } from '../services';
 import { BusinessConfig } from '../../config';
 
@@ -12,14 +13,19 @@ export class InitNetworkCommandHandler implements ICommandHandler<InitNetworkCom
     private readonly log: AppLogger,
     private readonly eventStore: EventStoreRepository,
     private readonly networkModelFactory: NetworkModelFactoryService,
+    private readonly viewsReadRepository: ViewsReadRepositoryService,
     private readonly businessConfig: BusinessConfig
   ) {}
 
   @Transactional({ connectionName: 'loader-eventstore' })
-  @RuntimeTracker({ showMemory: false })
   async execute({ payload }: InitNetworkCommand) {
     try {
-      const { requestId, indexedHeight } = payload;
+      const { requestId } = payload;
+
+      // Fetch last proccessed block hegith at read model
+      const indexedHeight = await this.viewsReadRepository.getLastBlock();
+
+      this.log.debug('Last block height value at read database', { height: indexedHeight }, this.constructor.name);
 
       const networkModel: Network = await this.networkModelFactory.initModel();
 
