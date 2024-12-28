@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler } from '@easylayer/components/cqrs';
 import { Transactional, EventStoreRepository } from '@easylayer/components/eventstore';
 import { ProcessReorganisationCommand } from '@easylayer/common/domain-cqrs-components/bitcoin';
 import { AppLogger, RuntimeTracker } from '@easylayer/components/logger';
-import { Network } from '../models/network.model';
+import { Network } from '@easylayer/components/bitcoin-network-state';
 import { NetworkModelFactoryService } from '../services';
 
 @CommandHandler(ProcessReorganisationCommand)

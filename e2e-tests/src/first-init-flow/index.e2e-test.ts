@@ -43,7 +43,23 @@ describe('/Bitcoin Loader: First Initializaton Flow', () => {
     });
   });
 
-  it('should create new loader aggregate', async () => {
+  it('should create new schema aggregate', async () => {
+    // Connect to the write database (event store)
+    dbService = new SQLiteService({ path: resolve(process.cwd(), 'data/loader-eventstore.db') });
+    await dbService.connect();
+
+    // Check if the loader aggregate is created
+    const events = await dbService.all(`SELECT * FROM events WHERE aggregateId = 'schema'`);
+
+    expect(events.length).toBe(3);
+    expect(events[0].aggregateId).toBe('schema');
+    expect(events[0].version).toBe(1);
+    expect(events[0].type).toBe('BitcoinSchemaUpMigrationStartedEvent');
+    expect(events[2].version).toBe(3);
+    expect(events[2].type).toBe('BitcoinSchemaSynchronisedEvent');
+  });
+
+  it('should create new network aggregate', async () => {
     // Connect to the write database (event store)
     dbService = new SQLiteService({ path: resolve(process.cwd(), 'data/loader-eventstore.db') });
     await dbService.connect();
@@ -58,5 +74,16 @@ describe('/Bitcoin Loader: First Initializaton Flow', () => {
 
     const payload = JSON.parse(events[0].payload);
     expect(payload.status).toBe('awaiting');
+  });
+
+  it('should init views system schema', async () => {
+    // Connect to the write database (event store)
+    dbService = new SQLiteService({ path: resolve(process.cwd(), 'data/loader-views.db') });
+    await dbService.connect();
+
+    // Check if the loader aggregate is created
+    const events = await dbService.all(`SELECT * FROM system`);
+
+    expect(events[0].last_block_height).toBe(-1);
   });
 });

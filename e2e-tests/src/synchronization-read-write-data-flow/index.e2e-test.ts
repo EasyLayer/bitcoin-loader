@@ -16,7 +16,7 @@ jest.spyOn(NetworkProviderService.prototype, 'getManyBlocksByHashes').mockImplem
   return mockBlocks;
 });
 
-describe('/Bitcoin Loader: Synchronization of Read and Write Databases', () => {
+describe('/Bitcoin Loader: Synchronization Read and Write Data Flow', () => {
   let writeDbService!: SQLiteService;
   let readDbService!: SQLiteService;
 
@@ -47,7 +47,7 @@ describe('/Bitcoin Loader: Synchronization of Read and Write Databases', () => {
     await cleanDataFolder('data');
 
     // Load environment variables from the specified .env file
-    config({ path: resolve(process.cwd(), 'src/synchronization-read-write-db-flow/.env') });
+    config({ path: resolve(process.cwd(), 'src/synchronization-read-write-data-flow/.env') });
 
     // Initialize the write database
     writeDbService = new SQLiteService({ path: resolve(process.cwd(), 'data/loader-eventstore.db') });

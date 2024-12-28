@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { EventPublisher } from '@easylayer/components/cqrs';
 import { EventStoreRepository } from '@easylayer/components/eventstore';
-import { Network } from '../models/network.model';
+import { Network } from '@easylayer/components/bitcoin-network-state';
 import { BusinessConfig } from '../../config';
 
 @Injectable()
 export class NetworkModelFactoryService {
   private cache = new MemoryCache<Network>(60000); // TTL 60 seconds
-  private readonly cacheKey = 'networkModel';
+  private readonly cacheKey = 'network';
 
   constructor(
     private readonly publisher: EventPublisher,
