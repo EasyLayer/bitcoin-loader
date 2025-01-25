@@ -652,7 +652,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@easylayer/bitcoin-loader@^1.1.1-beta.0, @easylayer/bitcoin-loader@workspace:package":
+"@easylayer/bitcoin-loader@^1.1.1-beta.1, @easylayer/bitcoin-loader@workspace:package":
   version: 0.0.0-use.local
   resolution: "@easylayer/bitcoin-loader@workspace:package"
   dependencies:
@@ -3108,7 +3108,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "bitcoin-loader-base@workspace:examples/bitcoin-loader-base"
   dependencies:
-    "@easylayer/bitcoin-loader": ^1.1.1-beta.0
+    "@easylayer/bitcoin-loader": ^1.1.1-beta.1
     "@types/node": 20.10.4
     rimraf: 5.0.5
     ts-node: 10.9.2
@@ -3120,7 +3120,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "bitcoin-loader-scripts@workspace:examples/bitcoin-loader-scripts"
   dependencies:
-    "@easylayer/bitcoin-loader": ^1.1.1-beta.0
+    "@easylayer/bitcoin-loader": ^1.1.1-beta.1
     "@easylayer/common": 0.4.1
     "@easylayer/components": 0.4.1
     "@types/node": 20.10.4
@@ -3134,7 +3134,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "bitcoin-loader-utxo@workspace:examples/bitcoin-loader-utxo"
   dependencies:
-    "@easylayer/bitcoin-loader": ^1.1.1-beta.0
+    "@easylayer/bitcoin-loader": ^1.1.1-beta.1
     "@easylayer/common": 0.4.1
     "@easylayer/components": 0.4.1
     "@types/node": 20.10.4
@@ -3148,7 +3148,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "bitcoin-loader-with-relation@workspace:examples/bitcoin-loader-with-relation"
   dependencies:
-    "@easylayer/bitcoin-loader": ^1.1.1-beta.0
+    "@easylayer/bitcoin-loader": ^1.1.1-beta.1
     "@types/node": 20.10.4
     rimraf: 5.0.5
     ts-node: 10.9.2
@@ -4682,7 +4682,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "e2e-bitcoin-loader@workspace:e2e-tests"
   dependencies:
-    "@easylayer/bitcoin-loader": ^1.1.1-beta.0
+    "@easylayer/bitcoin-loader": ^1.1.1-beta.1
     "@easylayer/common": 0.4.1
     "@easylayer/components": 0.4.1
     "@types/jest": 29.5.11
