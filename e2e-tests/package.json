@@ -1,6 +1,6 @@
 {
     "name": "e2e-bitcoin-loader",
-    "version": "1.1.0",
+    "version": "1.1.1-beta.0",
     "description": "",
     "private": true,
     "scripts": {
@@ -16,7 +16,7 @@
     "license": "",
     "packageManager": "yarn@3.6.0",
     "dependencies": {
-        "@easylayer/bitcoin-loader": "1.1.0",
+        "@easylayer/bitcoin-loader": "^1.1.1-beta.0",
         "@easylayer/common": "0.4.1",
         "@easylayer/components": "0.4.1",
         "dotenv": "16.4.5",
