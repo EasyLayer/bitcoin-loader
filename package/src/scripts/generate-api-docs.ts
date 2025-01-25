@@ -8,7 +8,7 @@ import { NestFactory } from '@nestjs/core';
 import { DynamicModule } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { BitcoinLoaderModule } from '../loader.module';
-import { ILoaderMapper, BaseViewModel } from '../protocol';
+import { BaseMapper, BaseViewModel } from '../protocol';
 
 interface GenerateDocOptions {
   title: string;
@@ -18,7 +18,11 @@ interface GenerateDocOptions {
   module: DynamicModule;
 }
 
-class Mapper implements ILoaderMapper {
+class Mapper extends BaseMapper {
+  constructor() {
+    super(__filename);
+  }
+
   onLoad(data: any): Promise<BaseViewModel | BaseViewModel[]> {
     return { data } as any;
   }
@@ -80,7 +84,6 @@ command
   .argument('[outputPath]', 'Output path for generated documentation', '.')
   .description('generate swagger docs files for all apis')
   .action((directory) => {
-    console.log('directory', directory);
     generateAPIDocs(directory);
   })
   .parse(process.argv);

@@ -11,10 +11,6 @@ export const BlockSchema = new EntitySchema({
     height: {
       type: 'integer',
     },
-    previousblockhash: {
-      type: 'varchar',
-      nullable: true,
-    },
     is_suspended: {
       type: 'boolean',
       default: false,

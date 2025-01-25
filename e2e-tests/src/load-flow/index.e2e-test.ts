@@ -2,15 +2,40 @@ import { resolve } from 'node:path';
 import { config } from 'dotenv';
 import { bootstrap } from '@easylayer/bitcoin-loader';
 import {
-  BitcoinLoaderBlocksIndexedEvent,
-  BitcoinLoaderInitializedEvent,
-} from '@easylayer/common/domain-cqrs-components/bitcoin-loader';
+  BitcoinNetworkBlocksAddedEvent,
+  BitcoinNetworkInitializedEvent,
+} from '@easylayer/common/domain-cqrs-components/bitcoin';
 import { NetworkProviderService } from '@easylayer/components/bitcoin-network-provider';
 import { SQLiteService } from '../+helpers/sqlite/sqlite.service';
 import { cleanDataFolder } from '../+helpers/clean-data-folder';
 import { BlockSchema } from './blocks';
-import { BlocksMapper } from './mapper';
 import { mockBlocks } from './mocks/blocks';
+import BlocksMapper from './mapper';
+
+jest.mock('piscina', () => {
+  return jest.fn().mockImplementation(() => ({
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    run: jest.fn().mockImplementation(({ fn, blocks, mapperPath }) => {
+      if (fn === 'onLoad') {
+        const operations = mockBlocks.map((block) => ({
+          entityName: 'blocks',
+          method: 'insert',
+          params: {
+            hash: block.hash,
+            height: block.height,
+            previousblockhash: block.previousblockhash || '000000000000000000',
+            tx: block.tx.map((t: any) => t.txid),
+          },
+        }));
+        return Promise.resolve(operations);
+      } else if (fn === 'onReorganisation') {
+        return Promise.resolve([]);
+      }
+      return Promise.resolve([]);
+    }),
+    destroy: jest.fn().mockResolvedValue(undefined),
+  }));
+});
 
 jest
   .spyOn(NetworkProviderService.prototype, 'getManyBlocksStatsByHeights')
@@ -34,6 +59,7 @@ describe('/Bitcoin Loader: Load Flow', () => {
   let dbService!: SQLiteService;
 
   afterAll(async () => {
+    jest.useRealTimers();
     if (dbService) {
       try {
         await dbService.close();
@@ -58,12 +84,18 @@ describe('/Bitcoin Loader: Load Flow', () => {
       testing: {
         handlerEventsToWait: [
           {
-            eventType: BitcoinLoaderBlocksIndexedEvent,
+            eventType: BitcoinNetworkBlocksAddedEvent,
             count: 1,
           },
         ],
       },
     });
+
+    jest.runAllTimers();
+  });
+
+  afterEach(async () => {
+    jest.clearAllMocks();
   });
 
   it('should save and verify loader events with correct payload structure', async () => {
@@ -75,28 +107,28 @@ describe('/Bitcoin Loader: Load Flow', () => {
     const events = await dbService.all(`SELECT * FROM events`);
 
     // Check that the loader initialization event is saved correctly
-    const initEvent = events.find((event) => event.type === BitcoinLoaderInitializedEvent.name);
+    const initEvent = events.find((event) => event.type === BitcoinNetworkInitializedEvent.name);
 
     // Ensure the initialization event exists
     expect(initEvent).toBeDefined();
 
-    // Verify the aggregateId is always 'loader'
-    expect(initEvent.aggregateId).toBe('loader');
+    // Verify the aggregateId is always 'network'
+    expect(initEvent.aggregateId).toBe('network');
 
     const initPayload = JSON.parse(initEvent.payload);
 
     // Verify the status in the payload is 'awaiting'
     expect(initPayload.status).toBe('awaiting');
 
-    // Check the block indexing events (BitcoinLoaderBlocksIndexedEvent)
-    const blockEvents = events.filter((event) => event.type === BitcoinLoaderBlocksIndexedEvent.name);
+    // Check the block indexing events (BitcoinNetworkBlocksAddedEvent)
+    const blockEvents = events.filter((event) => event.type === BitcoinNetworkBlocksAddedEvent.name);
 
     // Ensure there are block indexing events
     expect(blockEvents.length).toBeGreaterThan(0);
 
     blockEvents.forEach((event) => {
-      // Verify the aggregateId matches the expected value ('loader')
-      expect(event.aggregateId).toBe('loader');
+      // Verify the aggregateId matches the expected value ('network')
+      expect(event.aggregateId).toBe('network');
 
       const blockPayload = JSON.parse(event.payload);
 
@@ -140,7 +172,7 @@ describe('/Bitcoin Loader: Load Flow', () => {
     `);
 
     // Compare blocks fetched from DB with mock blocks
-    expect(blocksWithTransactions.length).toBe(2);
+    expect(blocksWithTransactions.length).toBe(3);
 
     blocksWithTransactions.forEach((block, index) => {
       const mockBlock = mockBlocks[index];

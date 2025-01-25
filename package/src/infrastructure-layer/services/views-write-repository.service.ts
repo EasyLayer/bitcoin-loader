@@ -60,7 +60,7 @@ export class ViewsWriteRepositoryService implements OnModuleDestroy {
    */
   public process(
     models: Array<{
-      getOperationsHistory: () => Array<{ method: string; params: any }>;
+      getOperationsHistory: () => any;
       clearOperationsHistory: () => void;
     }> = []
   ): void {
@@ -82,7 +82,7 @@ export class ViewsWriteRepositoryService implements OnModuleDestroy {
    * For `delete`, it accumulates different conditions into a single operation.
    * For `update`, it groups operations by values and accumulates conditions.
    */
-  private addOperation(entityName: string, method: string, params: any): void {
+  public addOperation(entityName: string, method: string, params: any): void {
     let existingOperation = this.operations.find((op) => op.entityName === entityName && op.method === method);
 
     if (!existingOperation) {
@@ -155,12 +155,12 @@ export class ViewsWriteRepositoryService implements OnModuleDestroy {
       await queryRunner.commitTransaction();
       this.clearOperations();
     } catch (error) {
-      this.log.error('Error during commit, rolling back transaction:', error, this.constructor.name);
+      this.log.debug('Error during commit, rolling back transaction:', error, this.constructor.name);
       try {
         await queryRunner.rollbackTransaction();
         this.clearOperations();
       } catch (rollbackError) {
-        this.log.error('Error during rollback:', rollbackError, this.constructor.name);
+        this.log.debug('Error during rollback:', rollbackError, this.constructor.name);
       }
       throw error;
     } finally {
@@ -178,7 +178,6 @@ export class ViewsWriteRepositoryService implements OnModuleDestroy {
 
   private async handleInsert(queryRunner: QueryRunner, entityName: string, data: any[]): Promise<void> {
     const batchSize = this.config.BITCOIN_LOADER_READ_DB_INSERT_CHANKS_LIMIT;
-
     if (this.isParallelSupport) {
       await this.insertWithCopy(queryRunner, entityName, data);
     } else {
@@ -213,7 +212,7 @@ export class ViewsWriteRepositoryService implements OnModuleDestroy {
   }
 
   private async insertWithCopy(queryRunner: QueryRunner, entityName: string, values: any[]): Promise<void> {
-    const repo = this.getRepository(entityName);
+    const repo = queryRunner.manager.getRepository(entityName);
     const entityMetadata = repo.metadata;
     const tableName = `"${entityMetadata.tableName}"`;
     const columns = entityMetadata.columns.map((col) => `"${col.databaseName}"`).join(', ');

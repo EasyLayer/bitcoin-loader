@@ -1,15 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource, DataSource, Repository } from '@easylayer/components/views-rdbms-db';
-import { AppLogger } from '@easylayer/components/logger';
-import { ReadDatabaseConfig } from '../../config';
 import { ISystem } from '../view-models';
 
 @Injectable()
 export class ViewsReadRepositoryService {
   constructor(
-    @InjectDataSource('loader-views') private readonly datasource: DataSource,
-    private readonly config: ReadDatabaseConfig,
-    private readonly log: AppLogger
+    @InjectDataSource('loader-views')
+    private readonly datasource: DataSource
   ) {}
 
   public getRepository<T extends object>(entityName: string): Repository<T> {

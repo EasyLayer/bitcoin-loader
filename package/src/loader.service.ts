@@ -1,34 +1,21 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { AppLogger } from '@easylayer/components/logger';
-import { LoaderCommandFactoryService } from './application-layer/services';
-import { ViewsReadRepositoryService } from './infrastructure-layer/services';
+import { SchemaCommandFactoryService } from './application-layer/services';
 
 @Injectable()
 export class LoaderService implements OnModuleInit {
   constructor(
     private readonly log: AppLogger,
-    private readonly loaderCommandFactory: LoaderCommandFactoryService,
-    private readonly viewsReadRepository: ViewsReadRepositoryService
+    private readonly schemaCommandFactory: SchemaCommandFactoryService
   ) {}
 
   async onModuleInit() {
-    await this.initialization();
+    await this.schemaSynchronisation();
   }
 
-  private async initialization(): Promise<void> {
-    this.log.info('Initialization all systems');
-
-    try {
-      const indexedHeight = await this.viewsReadRepository.getLastBlock();
-
-      await this.loaderCommandFactory.init({
-        requestId: uuidv4(),
-        indexedHeight,
-      });
-    } catch (error) {
-      this.log.error('initialization()', error, this.constructor.name);
-      throw error;
-    }
+  private async schemaSynchronisation(): Promise<void> {
+    // Sync Read Schema
+    await this.schemaCommandFactory.sync({ requestId: uuidv4() });
   }
 }

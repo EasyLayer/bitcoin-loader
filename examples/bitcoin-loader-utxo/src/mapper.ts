@@ -1,11 +1,15 @@
-import { ILoaderMapper } from '@easylayer/bitcoin-loader';
+import { BaseMapper } from '@easylayer/bitcoin-loader';
 import { ScriptUtilService } from '@easylayer/components/bitcoin-network-provider';
 import { Currency, Money } from '@easylayer/common/arithmetic';
 import { OutputsRepository, InputsRepository } from './repositories';
 
-export class Mapper implements ILoaderMapper {
+export default class Mapper extends BaseMapper {
   // Initialize an LRUCache with a maximum of 50k entries and a TTL of 60 seconds
   private cache = new LRUCache<string>(50000, 60000); // Max 1000 elements, TTL 60 seconds
+  
+  constructor() {
+    super(__filename);
+  }
 
   public async onLoad(block: any) {
     const networkName: string = process.env.BITCOIN_LOADER_BLOCKCHAIN_NETWORK_NAME!;
@@ -28,7 +32,7 @@ export class Mapper implements ILoaderMapper {
       const txid = t.txid;
 
       for (const vout of t.vout) {
-        let scriptHash: string | null = null;
+        let scriptHash: string | undefined = undefined;
 
         // Create a unique cache key based on the serialized scriptPubKey
         const scriptPubKeyHex = this.getScriptPubKeyHex(vout.scriptPubKey);

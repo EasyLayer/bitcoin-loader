@@ -3,7 +3,8 @@
   "compilerOptions": {
     "removeComments": true,
     "sourceMap": false,
-    "declarationMap": false
+    "declarationMap": false,
+    "allowJs": true
   },
   "references": [],
   "include": ["src"],

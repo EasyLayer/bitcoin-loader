@@ -1,46 +1,41 @@
-import { Inject } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@easylayer/components/cqrs';
 import { AppLogger, RuntimeTracker } from '@easylayer/components/logger';
 import { QueryFailedError } from '@easylayer/components/views-rdbms-db';
-import { BitcoinLoaderReorganisationFinishedEvent } from '@easylayer/common/domain-cqrs-components/bitcoin-loader';
+import { BitcoinNetworkReorganisationFinishedEvent } from '@easylayer/common/domain-cqrs-components/bitcoin';
 import { ViewsWriteRepositoryService } from '../../infrastructure-layer/services';
-import { ILoaderMapper } from '../../protocol';
+import { ProtocolWorkerService } from '../../protocol';
 import { SystemsRepository } from '../../infrastructure-layer/view-models';
 
-@EventsHandler(BitcoinLoaderReorganisationFinishedEvent)
-export class BitcoinLoaderReorganisationFinishedEventHandler
-  implements IEventHandler<BitcoinLoaderReorganisationFinishedEvent>
+@EventsHandler(BitcoinNetworkReorganisationFinishedEvent)
+export class BitcoinNetworkReorganisationFinishedEventHandler
+  implements IEventHandler<BitcoinNetworkReorganisationFinishedEvent>
 {
   constructor(
     private readonly log: AppLogger,
     private readonly viewsWriteRepository: ViewsWriteRepositoryService,
-    @Inject('LoaderMapper')
-    private readonly loaderMapper: ILoaderMapper
+    private readonly protocolWorkerService: ProtocolWorkerService
   ) {}
 
-  // @Transactional({ connectionName: 'loader-views' })
   @RuntimeTracker({ showMemory: false })
-  async handle({ payload }: BitcoinLoaderReorganisationFinishedEvent) {
+  async handle({ payload }: BitcoinNetworkReorganisationFinishedEvent) {
     try {
       const { blocks: lightBlocks } = payload;
 
-      const repositories = [];
-
       // Update System entity
       const lastBlockHeight: number = lightBlocks[lightBlocks.length - 1]?.height;
-      const systemModel = new SystemsRepository();
-      systemModel.update({ id: 1 }, { last_block_height: lastBlockHeight });
-
-      repositories.push(systemModel);
+      const systemsRepo = new SystemsRepository();
+      systemsRepo.update({ id: 1 }, { last_block_height: lastBlockHeight });
 
       if (Array.isArray(lightBlocks) && lightBlocks.length > 0) {
-        for (const block of lightBlocks) {
-          const results = await this.loaderMapper.onReorganisation(block);
-          repositories.push(...(Array.isArray(results) ? results : [results]));
-        }
+        const operations = await this.protocolWorkerService.calculateOnReorganisationOperations(lightBlocks);
+        console.log('operations', operations);
+        operations.forEach((item: any) => {
+          const { entityName, method, params } = item;
+          this.viewsWriteRepository.addOperation(entityName, method, params);
+        });
       }
 
-      this.viewsWriteRepository.process(repositories);
+      this.viewsWriteRepository.process([systemsRepo]);
 
       await this.viewsWriteRepository.commit();
 

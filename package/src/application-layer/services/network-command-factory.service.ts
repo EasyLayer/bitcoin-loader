@@ -2,16 +2,21 @@
 import { Injectable } from '@nestjs/common';
 import { CommandBus } from '@easylayer/components/cqrs';
 import {
-  InitLoaderCommand,
+  InitNetworkCommand,
   ProcessReorganisationCommand,
-} from '@easylayer/common/domain-cqrs-components/bitcoin-loader';
+  AddBlocksBatchCommand,
+} from '@easylayer/common/domain-cqrs-components/bitcoin';
 
 @Injectable()
-export class LoaderCommandFactoryService {
+export class NetworkCommandFactoryService {
   constructor(private readonly commandBus: CommandBus) {}
 
   public async init(dto: any): Promise<void> {
-    return await this.commandBus.execute(new InitLoaderCommand(dto));
+    return await this.commandBus.execute(new InitNetworkCommand(dto));
+  }
+
+  public async handleBatch(dto: any): Promise<void> {
+    await this.commandBus.execute(new AddBlocksBatchCommand({ ...dto }));
   }
 
   public async processReorganisation(dto: any): Promise<void> {

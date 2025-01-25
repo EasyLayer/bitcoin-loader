@@ -1,8 +1,12 @@
 import { ScriptUtilService } from '@easylayer/components/bitcoin-network-provider';
-import { ILoaderMapper } from '@easylayer/bitcoin-loader';
+import { BaseMapper } from '@easylayer/bitcoin-loader';
 import { ScriptsRepository } from './scripts';
 
-export class Mapper implements ILoaderMapper {
+export default class Mapper extends BaseMapper {
+    constructor() {
+        super(__filename);
+    }
+    
     public async onLoad(block: any) {
         const { height, tx } = block;
 

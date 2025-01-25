@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import './scripts/check-node-version';
 import { resolve } from 'node:path';
 import { config } from 'dotenv';
 import { Observable } from 'rxjs';
@@ -16,11 +17,10 @@ interface BootstrapOptions {
   schemas: EntitySchema[];
   mapper: MapperType;
   isServer?: boolean;
-  testing?: TestingOptions; // Grouped testing options into one interface
+  testing?: TestingOptions;
 }
 
 interface TestingOptions {
-  sagaEventsToWait?: EventWaiter[];
   handlerEventsToWait?: EventWaiter[];
 }
 
@@ -56,7 +56,7 @@ export const bootstrap = async ({
     const appConfig = app.get(AppConfig);
 
     // Handle event waiting logic in testing environments
-    if (appConfig.isTEST() && (!!testing.sagaEventsToWait || !!testing.handlerEventsToWait)) {
+    if (appConfig.isTEST() && !!testing.handlerEventsToWait) {
       await handleTestEventProcessing(app, testing);
     }
   } catch (error) {
@@ -120,25 +120,24 @@ const gracefulShutdown = (app: INestApplication | INestApplicationContext, logge
   }, 0);
 };
 
-// Handle event waiting for tests (both saga and handler events)
+// Handle event waiting for tests
 const handleTestEventProcessing = async (app: INestApplicationContext, testing: TestingOptions) => {
   const cqrs: any = app.get<CqrsModule>(CqrsModule);
   const eventBus = cqrs.eventBus;
 
-  const sagaPromises = createEventPromises(eventBus, testing.sagaEventsToWait, createSagaCompletionPromise);
   const handlerPromises = createEventPromises(
     eventBus,
     testing.handlerEventsToWait,
     createEventHandlerCompletionPromise
   );
 
-  await Promise.all([...sagaPromises, ...handlerPromises]);
+  await Promise.all([...handlerPromises]);
 
   // Forcefully close the application after events complete
   await app.close();
 };
 
-// Create promises for events (generic for saga and handler events)
+// Create promises for events
 const createEventPromises = (
   eventBus: CustomEventBus,
   eventWaiters: EventWaiter[] | undefined,
@@ -160,30 +159,6 @@ const createEventHandlerCompletionPromise = (
 
     let eventCount = 0;
     eventBus.eventHandlerCompletionSubject$.pipe(ofType(eventType)).subscribe({
-      next: () => {
-        eventCount++;
-        if (eventCount >= expectedCount) {
-          resolve();
-        }
-      },
-      error: (err: any) => reject(err),
-    });
-  });
-};
-
-// Promise factory for handling saga completion
-const createSagaCompletionPromise = (
-  eventBus: CustomEventBus,
-  eventType: any,
-  expectedCount: number
-): Promise<void> => {
-  return new Promise<void>((resolve, reject) => {
-    if (!(eventBus.sagaCompletionSubject$ instanceof Observable)) {
-      return reject(new Error('eventBus.sagaCompletionSubject$ is not Observable'));
-    }
-
-    let eventCount = 0;
-    eventBus.sagaCompletionSubject$.pipe(ofType(eventType)).subscribe({
       next: () => {
         eventCount++;
         if (eventCount >= expectedCount) {

@@ -4,7 +4,8 @@
     "rootDir": "src",
     "outDir": "dist",
     "sourceMap": true,
-    "declarationMap": true
+    "declarationMap": true,
+    "allowJs": true
   },
   "references": [],
   "include": ["src"],
