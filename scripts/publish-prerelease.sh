@@ -5,15 +5,15 @@ set -e
 
 # Get environment variables
 SUFFIX=$SUFFIX
-RELEASE_TYPE=$RELEASE_TYPE
+RELEASE_TYPE="prerelease"
 
 if [ -z "$SUFFIX" ]; then
   echo "Error: SUFFIX is not set."
   exit 1
 fi
 
-if [ -z "$RELEASE_TYPE" ]; then
-  echo "Error: RELEASE_TYPE is not set."
+if [[ "$RELEASE_TYPE" != "prerelease" ]]; then
+  echo "Error: RELEASE_TYPE must be 'prerelease'."
   exit 1
 fi
 
