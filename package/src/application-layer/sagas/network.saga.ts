@@ -25,8 +25,6 @@ export class NetworkSaga {
         event: BitcoinSchemaSynchronisedEvent,
         command: ({ payload }: BitcoinSchemaSynchronisedEvent) =>
           this.networkCommandFactory.init({
-            // IMPORTANT: In this case we can use the same requestId
-            // since it came from another aggregate (in case of same aggregate we would have to create a new one)
             requestId: payload.requestId,
           }),
       })

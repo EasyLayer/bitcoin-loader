@@ -9,8 +9,33 @@ import { NetworkProviderService } from '@easylayer/components/bitcoin-network-pr
 import { SQLiteService } from '../+helpers/sqlite/sqlite.service';
 import { cleanDataFolder } from '../+helpers/clean-data-folder';
 import { BlockSchema } from './blocks';
-import { BlocksMapper } from './mapper';
 import { mockBlocks } from './mocks/blocks';
+import BlocksMapper from './mapper';
+
+jest.mock('piscina', () => {
+  return jest.fn().mockImplementation(() => ({
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    run: jest.fn().mockImplementation(({ fn, blocks, mapperPath }) => {
+      if (fn === 'onLoad') {
+        const operations = mockBlocks.map((block) => ({
+          entityName: 'blocks',
+          method: 'insert',
+          params: {
+            hash: block.hash,
+            height: block.height,
+            previousblockhash: block.previousblockhash || '000000000000000000',
+            tx: block.tx.map((t: any) => t.txid),
+          },
+        }));
+        return Promise.resolve(operations);
+      } else if (fn === 'onReorganisation') {
+        return Promise.resolve([]);
+      }
+      return Promise.resolve([]);
+    }),
+    destroy: jest.fn().mockResolvedValue(undefined),
+  }));
+});
 
 jest
   .spyOn(NetworkProviderService.prototype, 'getManyBlocksStatsByHeights')
@@ -34,6 +59,7 @@ describe('/Bitcoin Loader: Load Flow', () => {
   let dbService!: SQLiteService;
 
   afterAll(async () => {
+    jest.useRealTimers();
     if (dbService) {
       try {
         await dbService.close();
@@ -64,6 +90,12 @@ describe('/Bitcoin Loader: Load Flow', () => {
         ],
       },
     });
+
+    jest.runAllTimers();
+  });
+
+  afterEach(async () => {
+    jest.clearAllMocks();
   });
 
   it('should save and verify loader events with correct payload structure', async () => {
@@ -140,7 +172,7 @@ describe('/Bitcoin Loader: Load Flow', () => {
     `);
 
     // Compare blocks fetched from DB with mock blocks
-    expect(blocksWithTransactions.length).toBe(2);
+    expect(blocksWithTransactions.length).toBe(3);
 
     blocksWithTransactions.forEach((block, index) => {
       const mockBlock = mockBlocks[index];

@@ -21,11 +21,23 @@ export class BusinessConfig {
   })
   BITCOIN_LOADER_START_BLOCK_HEIGHT: number = 0;
 
-  @Transform(({ value }) => (value ? parseInt(value, 10) : 1000))
-  @IsNumber()
-  BITCOIN_LOADER_MODEL_MAX_SIZE: number = 1000;
-
   @Transform(({ value }) => (value ? value : 'testnet'))
   @IsString()
   BITCOIN_LOADER_BLOCKCHAIN_NETWORK_NAME: string = 'testnet';
+
+  @Transform(({ value }) => (value !== undefined ? Number(value) : 1048576))
+  @IsNumber()
+  @JSONSchema({
+    description: 'The block size',
+    default: 1048576,
+  })
+  BITCOIN_LOADER_ONE_BLOCK_SIZE: number = 1048576;
+
+  @Transform(({ value }) => (value !== undefined ? parseInt(value, 10) : 4))
+  @IsNumber()
+  @JSONSchema({
+    description: 'Number of threads for processing the protocol',
+    default: 4,
+  })
+  BITCOIN_LOADER_PROTOCOL_PROCESSING_WORKERS_COUNT: number = 4;
 }

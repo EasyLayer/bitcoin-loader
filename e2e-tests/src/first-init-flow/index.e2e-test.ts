@@ -5,12 +5,15 @@ import { BitcoinNetworkInitializedEvent } from '@easylayer/common/domain-cqrs-co
 import { SQLiteService } from '../+helpers/sqlite/sqlite.service';
 import { cleanDataFolder } from '../+helpers/clean-data-folder';
 import { BlockSchema } from './blocks';
-import { BlocksMapper } from './mapper';
+import BlocksMapper from './mapper';
+
+jest.mock('piscina');
 
 describe('/Bitcoin Loader: First Initializaton Flow', () => {
   let dbService!: SQLiteService;
 
   afterAll(async () => {
+    jest.useRealTimers();
     if (dbService) {
       try {
         await dbService.close();
@@ -33,7 +36,7 @@ describe('/Bitcoin Loader: First Initializaton Flow', () => {
       schemas: [BlockSchema],
       mapper: BlocksMapper,
       testing: {
-        sagaEventsToWait: [
+        handlerEventsToWait: [
           {
             eventType: BitcoinNetworkInitializedEvent,
             count: 1,
@@ -41,6 +44,12 @@ describe('/Bitcoin Loader: First Initializaton Flow', () => {
         ],
       },
     });
+
+    jest.runAllTimers();
+  });
+
+  afterEach(async () => {
+    jest.clearAllMocks();
   });
 
   it('should create new schema aggregate', async () => {
@@ -51,12 +60,12 @@ describe('/Bitcoin Loader: First Initializaton Flow', () => {
     // Check if the loader aggregate is created
     const events = await dbService.all(`SELECT * FROM events WHERE aggregateId = 'schema'`);
 
-    expect(events.length).toBe(3);
+    expect(events.length).toBe(2);
     expect(events[0].aggregateId).toBe('schema');
     expect(events[0].version).toBe(1);
-    expect(events[0].type).toBe('BitcoinSchemaUpMigrationStartedEvent');
-    expect(events[2].version).toBe(3);
-    expect(events[2].type).toBe('BitcoinSchemaSynchronisedEvent');
+    expect(events[0].type).toBe('BitcoinSchemaUpdatedEvent');
+    expect(events[1].version).toBe(2);
+    expect(events[1].type).toBe('BitcoinSchemaSynchronisedEvent');
   });
 
   it('should create new network aggregate', async () => {

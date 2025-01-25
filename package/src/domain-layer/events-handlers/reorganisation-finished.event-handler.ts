@@ -1,10 +1,9 @@
-import { Inject } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@easylayer/components/cqrs';
 import { AppLogger, RuntimeTracker } from '@easylayer/components/logger';
 import { QueryFailedError } from '@easylayer/components/views-rdbms-db';
 import { BitcoinNetworkReorganisationFinishedEvent } from '@easylayer/common/domain-cqrs-components/bitcoin';
 import { ViewsWriteRepositoryService } from '../../infrastructure-layer/services';
-import { ILoaderMapper } from '../../protocol';
+import { ProtocolWorkerService } from '../../protocol';
 import { SystemsRepository } from '../../infrastructure-layer/view-models';
 
 @EventsHandler(BitcoinNetworkReorganisationFinishedEvent)
@@ -14,8 +13,7 @@ export class BitcoinNetworkReorganisationFinishedEventHandler
   constructor(
     private readonly log: AppLogger,
     private readonly viewsWriteRepository: ViewsWriteRepositoryService,
-    @Inject('LoaderMapper')
-    private readonly loaderMapper: ILoaderMapper
+    private readonly protocolWorkerService: ProtocolWorkerService
   ) {}
 
   @RuntimeTracker({ showMemory: false })
@@ -23,23 +21,21 @@ export class BitcoinNetworkReorganisationFinishedEventHandler
     try {
       const { blocks: lightBlocks } = payload;
 
-      const repositories = [];
-
       // Update System entity
       const lastBlockHeight: number = lightBlocks[lightBlocks.length - 1]?.height;
-      const systemModel = new SystemsRepository();
-      systemModel.update({ id: 1 }, { last_block_height: lastBlockHeight });
-
-      repositories.push(systemModel);
+      const systemsRepo = new SystemsRepository();
+      systemsRepo.update({ id: 1 }, { last_block_height: lastBlockHeight });
 
       if (Array.isArray(lightBlocks) && lightBlocks.length > 0) {
-        for (const block of lightBlocks) {
-          const results = await this.loaderMapper.onReorganisation(block);
-          repositories.push(...(Array.isArray(results) ? results : [results]));
-        }
+        const operations = await this.protocolWorkerService.calculateOnReorganisationOperations(lightBlocks);
+        console.log('operations', operations);
+        operations.forEach((item: any) => {
+          const { entityName, method, params } = item;
+          this.viewsWriteRepository.addOperation(entityName, method, params);
+        });
       }
 
-      this.viewsWriteRepository.process(repositories);
+      this.viewsWriteRepository.process([systemsRepo]);
 
       await this.viewsWriteRepository.commit();
 

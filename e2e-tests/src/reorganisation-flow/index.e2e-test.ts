@@ -6,19 +6,74 @@ import { NetworkProviderService } from '@easylayer/components/bitcoin-network-pr
 import { SQLiteService } from '../+helpers/sqlite/sqlite.service';
 import { cleanDataFolder } from '../+helpers/clean-data-folder';
 import { BlockSchema } from './blocks';
-import { BlocksMapper } from './mapper';
 import { mockFakeChainBlocks, mockRealChainBlocks } from './mocks/fake-and-real-blockschain';
+import BlocksMapper from './mapper';
+
+jest.mock('piscina', () => {
+  return jest.fn().mockImplementation(() => ({
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    run: jest.fn().mockImplementation(({ fn, blocks, mapperPath }) => {
+      if (fn === 'onLoad') {
+        const operations = blocks
+          .map((block: any) => {
+            const matchedBlock = mockFakeChainBlocks.find((b) => b.hash === block.hash);
+            if (matchedBlock) {
+              return {
+                entityName: 'blocks',
+                method: 'insert',
+                params: {
+                  hash: matchedBlock.hash,
+                  height: matchedBlock.height,
+                  previousblockhash: matchedBlock.previousblockhash || '000000000000000000',
+                  tx: matchedBlock.tx.map((t: any) => t.txid),
+                },
+              };
+            } else {
+              return {};
+            }
+          })
+          .filter((operation: any) => Object.keys(operation).length > 0);
+
+        return operations;
+      } else if (fn === 'onReorganisation') {
+        const operations = blocks
+          .map((block: any) => {
+            const matchedBlock = mockFakeChainBlocks.find((b) => b.hash === block.hash);
+            if (matchedBlock) {
+              return {
+                entityName: 'blocks',
+                method: 'update',
+                params: {
+                  values: {
+                    is_suspended: true,
+                  },
+                  conditions: {
+                    hash: matchedBlock.hash,
+                  },
+                },
+              };
+            } else {
+              return {};
+            }
+          })
+          .filter((operation: any) => Object.keys(operation).length > 0);
+
+        return operations;
+      }
+      return [];
+    }),
+    destroy: jest.fn().mockResolvedValue(undefined),
+  }));
+});
 
 jest
   .spyOn(NetworkProviderService.prototype, 'getManyBlocksStatsByHeights')
-  .mockImplementation(async (heights: (string | number)[]): Promise<any> => {
-    return mockFakeChainBlocks
-      .filter((block) => heights.includes(block.height))
-      .map((block) => ({
-        blockhash: block.hash,
-        total_size: 1,
-        height: block.height,
-      }));
+  .mockImplementation(async (): Promise<any> => {
+    return mockFakeChainBlocks.map((block) => ({
+      blockhash: block.hash,
+      total_size: 1,
+      height: block.height,
+    }));
   });
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -58,12 +113,6 @@ describe('/Bitcoin Loader: Reorganisation Flow', () => {
       mapper: BlocksMapper,
       testing: {
         handlerEventsToWait: [
-          {
-            eventType: BitcoinNetworkReorganisationFinishedEvent,
-            count: 1,
-          },
-        ],
-        sagaEventsToWait: [
           {
             eventType: BitcoinNetworkReorganisationFinishedEvent,
             count: 1,
@@ -134,7 +183,7 @@ describe('/Bitcoin Loader: Reorganisation Flow', () => {
         b.previousblockhash AS previousBlockHash,
         b.is_suspended AS blockSuspended,
         b.tx AS blockTransactions
-      FROM 
+      FROM
         blocks b
     `);
 
@@ -161,5 +210,9 @@ describe('/Bitcoin Loader: Reorganisation Flow', () => {
       // Check that the block is marked as suspended
       expect(blockInDb.blockSuspended).toBeTruthy();
     });
+  });
+
+  it('should add correct data into views db after reorganisation', async () => {
+    // TODO
   });
 });

@@ -15,12 +15,7 @@ export class LoaderService implements OnModuleInit {
   }
 
   private async schemaSynchronisation(): Promise<void> {
-    try {
-      // Init Read Schema
-      await this.schemaCommandFactory.sync({ requestId: uuidv4() });
-    } catch (error) {
-      this.log.error('schemaSynchronisation()', error, this.constructor.name);
-      throw error;
-    }
+    // Sync Read Schema
+    await this.schemaCommandFactory.sync({ requestId: uuidv4() });
   }
 }

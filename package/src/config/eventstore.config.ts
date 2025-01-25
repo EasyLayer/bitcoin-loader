@@ -65,6 +65,10 @@ export class EventStoreConfig {
   })
   BITCOIN_LOADER_EVENTSTORE_DB_NAME: string = resolve(process.cwd(), 'data/loader-eventstore.db');
 
+  @Transform(({ value }) => (value ? parseInt(value, 10) : 1000))
+  @IsNumber()
+  BITCOIN_LOADER_EVENTSTORE_MODEL_MAX_SIZE: number = 1000;
+
   isLogging(): boolean {
     return process.env.DB_DEBUG === '1';
   }

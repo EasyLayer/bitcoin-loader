@@ -1,8 +1,6 @@
 import { EntitySchema, generateRepositoryFromSchema } from '@easylayer/bitcoin-loader';
 
-export const INDEX_NAME = 'IDX_PREVIOUSBLOCKHASH';
-
-export const BlockSchemaWithIndex = new EntitySchema({
+export const BlockSchema = new EntitySchema({
   name: 'blocks',
   tableName: 'blocks',
   columns: {
@@ -13,10 +11,6 @@ export const BlockSchemaWithIndex = new EntitySchema({
     height: {
       type: 'integer',
     },
-    previousblockhash: {
-      type: 'varchar',
-      nullable: true,
-    },
     is_suspended: {
       type: 'boolean',
       default: false,
@@ -26,13 +20,6 @@ export const BlockSchemaWithIndex = new EntitySchema({
       nullable: false,
     },
   },
-  indices: [
-    {
-      name: INDEX_NAME,
-      columns: ['previousblockhash'],
-      unique: false,
-    },
-  ],
 });
 
-export const BlocksRepository = generateRepositoryFromSchema(BlockSchemaWithIndex);
+export const BlocksRepository = generateRepositoryFromSchema(BlockSchema);

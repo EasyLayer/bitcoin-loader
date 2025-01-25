@@ -2,7 +2,7 @@ import { Module, DynamicModule } from '@nestjs/common';
 import { transformAndValidate } from 'class-transformer-validator';
 import { CqrsModule } from '@easylayer/components/cqrs';
 import { CqrsTransportModule } from '@easylayer/components/cqrs-transport';
-import { LoggerModule } from '@easylayer/components/logger';
+import { AppLogger, LoggerModule } from '@easylayer/components/logger';
 import { ArithmeticService } from '@easylayer/common/arithmetic';
 import { BlocksQueueModule } from '@easylayer/components/bitcoin-blocks-queue';
 import { EventStoreModule } from '@easylayer/components/eventstore';
@@ -12,7 +12,6 @@ import { LoaderController } from './loader.controller';
 import { LoaderService } from './loader.service';
 import { NetworkSaga, SchemaSaga } from './application-layer/sagas';
 import {
-  BlocksCommandFactoryService,
   NetworkCommandFactoryService,
   SchemaCommandFactoryService,
   ReadStateExceptionHandlerService,
@@ -31,8 +30,9 @@ import {
   BlocksQueueConfig,
   ProvidersConfig,
 } from './config';
-import { MapperType, EntitySchema } from './protocol';
+import { MapperType, EntitySchema, ProtocolWorkerService } from './protocol';
 import { SystemSchema } from './infrastructure-layer/view-models';
+import { MetricsService } from './metrics.service';
 
 interface LoaderModuleOptions {
   appName: string;
@@ -63,6 +63,12 @@ export class BitcoinLoaderModule {
       validator: { whitelist: true },
     });
 
+    const queueIteratorBlocksBatchSize =
+      businessConfig.BITCOIN_LOADER_ONE_BLOCK_SIZE * businessConfig.BITCOIN_LOADER_PROTOCOL_PROCESSING_WORKERS_COUNT;
+    const queueLoaderRequestBlocksBatchSize = businessConfig.BITCOIN_LOADER_ONE_BLOCK_SIZE * 2;
+    const maxQueueSize = queueIteratorBlocksBatchSize * 3;
+    const minTransferSize = businessConfig.BITCOIN_LOADER_ONE_BLOCK_SIZE - 1;
+
     return {
       module: BitcoinLoaderModule,
       controllers: [LoaderController],
@@ -75,7 +81,6 @@ export class BitcoinLoaderModule {
           isGlobal: true,
           quickNodesUrls: providersConfig.BITCOIN_LOADER_NETWORK_PROVIDER_QUICK_NODE_URLS,
           selfNodesUrl: providersConfig.BITCOIN_LOADER_NETWORK_PROVIDER_SELF_NODE_URL,
-          maxRequestContentLength: providersConfig.BITCOIN_LOADER_NETWORK_PROVIDER_MAX_REQUEST_CONTENT_LENGTH,
           responseTimeout: providersConfig.BITCOIN_LOADER_NETWORK_PROVIDER_REQUEST_TIMEOUT,
         }),
         EventStoreModule.forRootAsync({
@@ -117,15 +122,14 @@ export class BitcoinLoaderModule {
         }),
         BlocksQueueModule.forRootAsync({
           isTransportMode: false,
-          blocksCommandExecutor: BlocksCommandFactoryService,
+          blocksCommandExecutor: NetworkCommandFactoryService,
           maxBlockHeight: businessConfig.BITCOIN_LOADER_MAX_BLOCK_HEIGHT,
-          queueLoaderRequestBlocksBatchSize:
-            blocksQueueConfig.BITCOIN_LOADER_BLOCKS_QUEUE_LOADER_REQUEST_BLOCKS_BATCH_SIZE,
-          maxQueueSize: blocksQueueConfig.BITCOIN_LOADER_BLOCKS_QUEUE_MAX_SIZE,
-          minTransferSize: blocksQueueConfig.BITCOIN_LOADER_BLOCKS_QUEUE_MIN_TRANSFER_SIZE,
           queueLoaderStrategyName: blocksQueueConfig.BITCOIN_LOADER_BLOCKS_QUEUE_LOADER_STRATEGY_NAME,
-          queueIteratorBlocksBatchSize: blocksQueueConfig.BITCOIN_LOADER_BLOCKS_QUEUE_ITERATOR_BLOCKS_BATCH_SIZE,
           queueLoaderConcurrency: blocksQueueConfig.BITCOIN_LOADER_BLOCKS_QUEUE_LOADER_CONCURRENCY_COUNT,
+          queueLoaderRequestBlocksBatchSize,
+          queueIteratorBlocksBatchSize,
+          maxQueueSize,
+          minTransferSize,
           isTest: appConfig.isTEST(),
         }),
       ],
@@ -151,16 +155,20 @@ export class BitcoinLoaderModule {
           useValue: readdatabaseConfig,
         },
         {
-          provide: 'LoaderMapper',
-          useClass: mapper,
+          provide: ProtocolWorkerService,
+          useFactory: async (logger, businessConfig) => {
+            const mapperInstance = new mapper();
+            return new ProtocolWorkerService(logger, businessConfig, mapperInstance.filepath);
+          },
+          inject: [AppLogger, BusinessConfig],
         },
+        MetricsService,
         ViewsReadRepositoryService,
         ViewsWriteRepositoryService,
         ArithmeticService,
         LoaderService,
         NetworkSaga,
         SchemaSaga,
-        BlocksCommandFactoryService,
         NetworkCommandFactoryService,
         SchemaCommandFactoryService,
         NetworkModelFactoryService,
