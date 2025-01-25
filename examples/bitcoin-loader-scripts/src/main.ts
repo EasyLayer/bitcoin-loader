@@ -1,6 +1,6 @@
 import { bootstrap } from '@easylayer/bitcoin-loader';
 import { ScriptSchema } from './scripts';
-import { Mapper } from './mapper';
+import Mapper from './mapper';
 
 bootstrap({
   appName: 'easylayer',

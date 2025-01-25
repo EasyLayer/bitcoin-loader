@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@easylayer/components/cqrs';
-import { Transactional, EventStoreRepository } from '@easylayer/components/eventstore';
+import { EventStoreRepository } from '@easylayer/components/eventstore';
 import { ProcessReorganisationCommand } from '@easylayer/common/domain-cqrs-components/bitcoin';
 import { AppLogger, RuntimeTracker } from '@easylayer/components/logger';
 import { Network } from '@easylayer/components/bitcoin-network-state';
@@ -13,7 +13,6 @@ export class ProcessReorganisationCommandHandler implements ICommandHandler<Proc
     private readonly eventStore: EventStoreRepository
   ) {}
 
-  @Transactional({ connectionName: 'loader-eventstore' })
   @RuntimeTracker({ showMemory: false })
   async execute({ payload }: ProcessReorganisationCommand) {
     try {
@@ -26,7 +25,7 @@ export class ProcessReorganisationCommandHandler implements ICommandHandler<Proc
       // IMPORTANT: We could not store transactions in the aggregator, but get them here from the provider,
       // but this will increase the cost, so we store them for now
 
-      await networkModel.processReorganisation({
+      await networkModel.finishReorganisation({
         blocks,
         height,
         requestId,
@@ -34,13 +33,8 @@ export class ProcessReorganisationCommandHandler implements ICommandHandler<Proc
       });
 
       await this.eventStore.save(networkModel);
-
-      this.networkModelFactory.updateCache(networkModel);
-
-      await networkModel.commit();
     } catch (error) {
       this.log.error('execute()', error, this.constructor.name);
-      this.networkModelFactory.clearCache();
       throw error;
     }
   }

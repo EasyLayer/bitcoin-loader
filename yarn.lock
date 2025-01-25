@@ -656,8 +656,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@easylayer/bitcoin-loader@workspace:package"
   dependencies:
-    "@easylayer/common": 0.3.7
-    "@easylayer/components": 0.3.7
+    "@easylayer/common": 0.4.1
+    "@easylayer/components": 0.4.1
     "@nestjs-query/core": 0.30.0
     "@nestjs/common": 10.2.10
     "@nestjs/core": 10.2.10
@@ -670,6 +670,7 @@ __metadata:
     "@types/node": 20.10.4
     "@types/pg-copy-streams": 1.2.5
     "@types/uuid": 9.0.7
+    check-node-version: 4.2.1
     class-transformer: 0.5.1
     class-transformer-validator: 0.9.1
     class-validator: 0.14.0
@@ -679,6 +680,7 @@ __metadata:
     fs-extra: 11.2.0
     jest: 29.7.0
     pg-copy-streams: 6.0.6
+    piscina: 4.1.0
     reflect-metadata: 0.1.14
     rxjs: 7.8.1
     ts-jest: 29.1.1
@@ -688,9 +690,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@easylayer/common@npm:0.1.1":
-  version: 0.1.1
-  resolution: "@easylayer/common@npm:0.1.1"
+"@easylayer/common@npm:0.4.1":
+  version: 0.4.1
+  resolution: "@easylayer/common@npm:0.4.1"
   dependencies:
     "@nestjs/common": 10.2.10
     "@nestjs/core": 10.2.10
@@ -700,67 +702,15 @@ __metadata:
     chalk: 4.1.2
     reflect-metadata: 0.1.14
     rxjs: 7.8.1
-  checksum: d87f3cd793a0e736d6b184a24c5920ee52563315a671f7dea5980049a5dd1ac547ff91398529557ca9c117cdaa2b4d2d076de54976950416f4adb2ef6825399a
+  checksum: b088eb83c238c953ad571c8accbc08c7a7dc4acd5628bef7f98c0d565447ebfa47c0f73e8789cc3482618da6c2d7bce21f467f9f42d14406f5741c8ba7531d52
   languageName: node
   linkType: hard
 
-"@easylayer/common@npm:0.3.7":
-  version: 0.3.7
-  resolution: "@easylayer/common@npm:0.3.7"
+"@easylayer/components@npm:0.4.1":
+  version: 0.4.1
+  resolution: "@easylayer/components@npm:0.4.1"
   dependencies:
-    "@nestjs/common": 10.2.10
-    "@nestjs/core": 10.2.10
-    bignumber.js: 9.1.2
-    bn.js: 5.2.1
-    bunyan: 1.8.15
-    chalk: 4.1.2
-    reflect-metadata: 0.1.14
-    rxjs: 7.8.1
-  checksum: 688a51ce35a5f0cca4ba4df988dd5b1565ff45443e56734e970a34c64b76b0246dc5df46fabcb4bbbf0593a0dd3b9336f460be17119453a1d13a23c02f3773b3
-  languageName: node
-  linkType: hard
-
-"@easylayer/components@npm:0.1.1":
-  version: 0.1.1
-  resolution: "@easylayer/components@npm:0.1.1"
-  dependencies:
-    "@easylayer/common": 0.1.1
-    "@nestjs/common": 10.2.10
-    "@nestjs/core": 10.2.10
-    "@nestjs/cqrs": 10.2.6
-    "@nestjs/platform-socket.io": 10.2.10
-    "@nestjs/swagger": 7.1.17
-    "@nestjs/typeorm": 10.0.2
-    "@nestjs/websockets": 10.2.10
-    async-mutex: 0.5.0
-    bip32: 4.0.0
-    bip39: 3.1.0
-    bitcoin-core: 4.1.0
-    bitcoinjs-lib: 6.1.6
-    ecpair: 2.1.0
-    lodash: 4.17.21
-    p-queue: 6.6.2
-    pg: 8.12.0
-    pg-error-enum: 0.7.1
-    piscina: 4.1.0
-    reflect-metadata: 0.1.14
-    rocksdb: 5.2.1
-    rxjs: 7.8.1
-    sqlite3: 5.1.7
-    stream-json: 1.8.0
-    tiny-secp256k1: 2.2.3
-    typeorm: 0.3.20
-    typeorm-transactional: 0.5.0
-    uuid: 9.0.1
-  checksum: c353b251455aa4a4a9ff3b8986c7d2f839d0f1fef0c2a7e1d3f49cbd92a37b2f1e713e892a82c5e52e6733c54d34fd2a07f346d5d6a673df5050567b633b1d5c
-  languageName: node
-  linkType: hard
-
-"@easylayer/components@npm:0.3.7":
-  version: 0.3.7
-  resolution: "@easylayer/components@npm:0.3.7"
-  dependencies:
-    "@easylayer/common": 0.3.7
+    "@easylayer/common": 0.4.1
     "@nestjs/common": 10.2.10
     "@nestjs/core": 10.2.10
     "@nestjs/cqrs": 10.2.6
@@ -790,7 +740,7 @@ __metadata:
     typeorm: 0.3.20
     typeorm-transactional: 0.5.0
     uuid: 9.0.1
-  checksum: d6b3232cb158ba7dfcb0d59b022329b55378d66cccc6dbb50786ddb790775d55dd02917d3b5ee5010901a123f6db59859d020fd939251ff0bd75c3ddbfe162c0
+  checksum: 8abf6a1df014b715bbb5c289a50ef3ec8fceec2b324f8d848154bcdac90b682926280a322e2f66471149d23573fd30153785be5e4af7b3417d9b6afc9d3aba40
   languageName: node
   linkType: hard
 
@@ -3171,7 +3121,8 @@ __metadata:
   resolution: "bitcoin-loader-scripts@workspace:examples/bitcoin-loader-scripts"
   dependencies:
     "@easylayer/bitcoin-loader": ^1.0.2-beta.0
-    "@easylayer/components": 0.1.1
+    "@easylayer/common": 0.4.1
+    "@easylayer/components": 0.4.1
     "@types/node": 20.10.4
     rimraf: 5.0.5
     ts-node: 10.9.2
@@ -3184,8 +3135,8 @@ __metadata:
   resolution: "bitcoin-loader-utxo@workspace:examples/bitcoin-loader-utxo"
   dependencies:
     "@easylayer/bitcoin-loader": ^1.0.2-beta.0
-    "@easylayer/common": 0.3.7
-    "@easylayer/components": 0.3.7
+    "@easylayer/common": 0.4.1
+    "@easylayer/components": 0.4.1
     "@types/node": 20.10.4
     rimraf: 5.0.5
     ts-node: 10.9.2
@@ -3661,6 +3612,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"chalk@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "chalk@npm:3.0.0"
+  dependencies:
+    ansi-styles: ^4.1.0
+    supports-color: ^7.1.0
+  checksum: 8e3ddf3981c4da405ddbd7d9c8d91944ddf6e33d6837756979f7840a29272a69a5189ecae0ff84006750d6d1e92368d413335eab4db5476db6e6703a1d1e0505
+  languageName: node
+  linkType: hard
+
 "chalk@npm:^5.3.0":
   version: 5.3.0
   resolution: "chalk@npm:5.3.0"
@@ -3679,6 +3640,22 @@ __metadata:
   version: 0.7.0
   resolution: "chardet@npm:0.7.0"
   checksum: 6fd5da1f5d18ff5712c1e0aed41da200d7c51c28f11b36ee3c7b483f3696dabc08927fc6b227735eb8f0e1215c9a8abd8154637f3eff8cada5959df7f58b024d
+  languageName: node
+  linkType: hard
+
+"check-node-version@npm:4.2.1":
+  version: 4.2.1
+  resolution: "check-node-version@npm:4.2.1"
+  dependencies:
+    chalk: ^3.0.0
+    map-values: ^1.0.1
+    minimist: ^1.2.0
+    object-filter: ^1.0.2
+    run-parallel: ^1.1.4
+    semver: ^6.3.0
+  bin:
+    check-node-version: bin.js
+  checksum: a559236ce202125decfc51ffa9be5cfa46f2b791e0c0e7e41c306fb7c0729a4641669228c4b95749e5f518608609ba6cf3b7963116b4e2d49bd45e18c6bd9cb4
   languageName: node
   linkType: hard
 
@@ -4706,8 +4683,8 @@ __metadata:
   resolution: "e2e-bitcoin-loader@workspace:e2e-tests"
   dependencies:
     "@easylayer/bitcoin-loader": ^1.0.2-beta.0
-    "@easylayer/common": 0.3.7
-    "@easylayer/components": 0.3.7
+    "@easylayer/common": 0.4.1
+    "@easylayer/components": 0.4.1
     "@types/jest": 29.5.11
     "@types/node": 20.10.4
     "@types/supertest": 6.0.2
@@ -8057,6 +8034,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"map-values@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "map-values@npm:1.0.1"
+  checksum: 0ab60d451f4708861641dbb965e27b645c717c68083ff5927b7ad8473bd0bfb6069a561b6a6d83fa3a757fdb55b5772cfc07fd39a9956194f3b1532ad18478e3
+  languageName: node
+  linkType: hard
+
 "marked@npm:^4.3.0":
   version: 4.3.0
   resolution: "marked@npm:4.3.0"
@@ -9082,6 +9066,13 @@ __metadata:
   version: 4.1.1
   resolution: "object-assign@npm:4.1.1"
   checksum: fcc6e4ea8c7fe48abfbb552578b1c53e0d194086e2e6bbbf59e0a536381a292f39943c6e9628af05b5528aa5e3318bb30d6b2e53cadaf5b8fe9e12c4b69af23f
+  languageName: node
+  linkType: hard
+
+"object-filter@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "object-filter@npm:1.0.2"
+  checksum: 9542bb51d33b76353587c6e49e3e1d7d8e8c00484b19c6b3d63c2bc7777873e50b842f9588cd506dcb138add559ee7a5dafb7951f6e8df40af1a9558c08412cb
   languageName: node
   linkType: hard
 
@@ -10436,7 +10427,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"run-parallel@npm:^1.1.9":
+"run-parallel@npm:^1.1.4, run-parallel@npm:^1.1.9":
   version: 1.2.0
   resolution: "run-parallel@npm:1.2.0"
   dependencies:

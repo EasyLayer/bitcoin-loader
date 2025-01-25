@@ -1,7 +1,11 @@
-import { ILoaderMapper } from '@easylayer/bitcoin-loader';
+import { BaseMapper } from '@easylayer/bitcoin-loader';
 import { BlocksRepository } from './blocks';
 
-export class BlocksMapper implements ILoaderMapper {
+export default class BlocksMapper extends BaseMapper {
+    constructor() {
+        super(__filename);
+    }
+    
     public async onLoad(block: any) {
         const { height, hash, previousblockhash, tx } = block;
 

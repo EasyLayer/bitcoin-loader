@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@easylayer/components/cqrs';
-import { Transactional, EventStoreRepository } from '@easylayer/components/eventstore';
+import { EventStoreRepository } from '@easylayer/components/eventstore';
 import { AddBlocksBatchCommand } from '@easylayer/common/domain-cqrs-components/bitcoin';
 import { AppLogger, RuntimeTracker } from '@easylayer/components/logger';
 import { NetworkProviderService } from '@easylayer/components/bitcoin-network-provider';
@@ -15,7 +15,6 @@ export class AddBlocksBatchCommandHandler implements ICommandHandler<AddBlocksBa
     private readonly eventStore: EventStoreRepository
   ) {}
 
-  @Transactional({ connectionName: 'loader-eventstore' })
   @RuntimeTracker({ showMemory: false, warningThresholdMs: 10, errorThresholdMs: 1000 })
   async execute({ payload }: AddBlocksBatchCommand) {
     try {
@@ -31,14 +30,8 @@ export class AddBlocksBatchCommandHandler implements ICommandHandler<AddBlocksBa
       });
 
       await this.eventStore.save(networkModel);
-
-      this.networkModelFactory.updateCache(networkModel);
-
-      await networkModel.commit();
-      // console.time('CqrsTransportTime');
     } catch (error) {
       this.log.error('execute()', error, this.constructor.name);
-      this.networkModelFactory.clearCache();
       throw error;
     }
   }
